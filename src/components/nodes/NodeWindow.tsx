@@ -49,13 +49,14 @@ export function NodeWindow({ node, children, width = 300, minWidth = 220 }: Node
         minWidth,
         zIndex: 5,
         userSelect: 'none',
+        cursor: 'default',
       }}
     >
-      {/* Input ports on the left edge */}
+      {/* Input ports — circle centered on the left border */}
       {inputPorts.length > 0 && (
         <div
-          className="absolute flex flex-col gap-2 items-end"
-          style={{ left: -20, top: 40 }}
+          className="absolute flex flex-col gap-3"
+          style={{ left: -6, top: 44 }}
         >
           {inputPorts.map((port) => (
             <Port key={port.id} port={port} />
@@ -75,11 +76,11 @@ export function NodeWindow({ node, children, width = 300, minWidth = 220 }: Node
 
         <div className="p-3">{children}</div>
 
-        {/* Output ports on the right edge */}
+        {/* Output ports — circle centered on the right border */}
         {outputPorts.length > 0 && (
           <div
-            className="absolute flex flex-col gap-3 items-start"
-            style={{ right: -20, top: 40 }}
+            className="absolute flex flex-col gap-3"
+            style={{ right: -6, top: 44 }}
           >
             {outputPorts.map((port) => (
               <Port key={port.id} port={port} />

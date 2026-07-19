@@ -13,29 +13,27 @@ export function Port({ port }: PortProps) {
   const isOutput = port.type === 'output'
 
   return (
-    <div
-      className={`flex items-center gap-1.5 ${isOutput ? 'flex-row-reverse' : 'flex-row'}`}
-    >
-      {port.label && (
+    <div className="flex items-center">
+      {/* Input ports only show their label (outputs never show text) */}
+      {!isOutput && port.label && (
         <span
-          className="text-[9px] uppercase tracking-widest"
+          className="text-[9px] uppercase tracking-widest mr-1.5"
           style={{ color: 'var(--text-secondary)' }}
         >
           {port.label}
         </span>
       )}
+
       <div
         ref={portRef}
         data-port={port.id}
         data-port-type={port.type}
         data-port-node-id={port.nodeId}
-        className="w-3 h-3 rounded-full border flex-shrink-0 transition-colors"
+        className="w-3 h-3 rounded-full flex-shrink-0"
         style={{
           background: 'var(--port-bg)',
-          borderColor: 'var(--port-border)',
-          borderWidth: '2px',
+          border: '2px solid var(--port-border)',
           cursor: isOutput ? 'crosshair' : 'default',
-          boxShadow: isOutput ? '0 0 0 0 var(--accent)' : 'none',
         }}
         onPointerDown={
           isOutput
@@ -43,15 +41,16 @@ export function Port({ port }: PortProps) {
             : undefined
         }
         onPointerEnter={(e) => {
-          if (isOutput) {
-            ;(e.currentTarget as HTMLElement).style.background = 'var(--accent)'
-          } else {
-            ;(e.currentTarget as HTMLElement).style.borderColor = 'var(--accent)'
-          }
+          const el = e.currentTarget as HTMLElement
+          el.style.background = 'var(--accent)'
+          el.style.borderColor = 'var(--accent)'
+          el.style.cursor = 'crosshair'
         }}
         onPointerLeave={(e) => {
-          ;(e.currentTarget as HTMLElement).style.background = 'var(--port-bg)'
-          ;(e.currentTarget as HTMLElement).style.borderColor = 'var(--port-border)'
+          const el = e.currentTarget as HTMLElement
+          el.style.background = 'var(--port-bg)'
+          el.style.borderColor = 'var(--port-border)'
+          el.style.cursor = isOutput ? 'crosshair' : 'default'
         }}
       />
     </div>

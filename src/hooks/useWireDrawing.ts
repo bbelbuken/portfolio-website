@@ -1,6 +1,5 @@
 import { useCallback, useRef } from 'react'
 import { useGraphStore } from '@/stores/graphStore'
-import { useCanvasStore } from '@/stores/canvasStore'
 import type { Port } from '@/types'
 
 /**
@@ -14,23 +13,25 @@ export function useWireDrawing() {
   const commitWire = useGraphStore((s) => s.commitWire)
   const cancelDraftWire = useGraphStore((s) => s.cancelDraftWire)
 
-  const canvasX = useCanvasStore((s) => s.x)
-  const canvasY = useCanvasStore((s) => s.y)
-  const canvasScale = useCanvasStore((s) => s.scale)
-
   // SVG path element updated during drag without React
   const draftPathRef = useRef<SVGPathElement | null>(null)
   const isDragging = useRef(false)
 
-  const toCanvasCoords = useCallback(
-    (clientX: number, clientY: number) => {
-      return {
-        x: (clientX - canvasX) / canvasScale,
-        y: (clientY - canvasY) / canvasScale,
-      }
-    },
-    [canvasX, canvasY, canvasScale],
-  )
+  /**
+   * Convert a viewport (clientX, clientY) point into canvas-local coordinates
+   * by reading the live DOM transform of #canvas-content.
+   * This is correct regardless of pan position or zoom level.
+   */
+  const toCanvasCoords = useCallback((clientX: number, clientY: number) => {
+    const canvasContent = document.getElementById('canvas-content')
+    if (!canvasContent) return { x: clientX, y: clientY }
+    const rect = canvasContent.getBoundingClientRect()
+    const scale = new DOMMatrix(window.getComputedStyle(canvasContent).transform).a || 1
+    return {
+      x: (clientX - rect.left) / scale,
+      y: (clientY - rect.top) / scale,
+    }
+  }, [])
 
   const onPortPointerDown = useCallback(
     (e: React.PointerEvent, port: Port, portEl: HTMLElement) => {

@@ -27,7 +27,7 @@ export function NodeSocket({ node }: NodeSocketProps) {
       exit={{ scale: 0.6, opacity: 0 }}
       transition={{ type: 'spring', stiffness: 300, damping: 24 }}
       data-node={node.id}
-      className="absolute flex items-center gap-2 px-3 py-1.5 cursor-move"
+      className="absolute flex items-center gap-2 px-3 py-1.5"
       style={{
         left: node.x,
         top: node.y,
@@ -37,6 +37,7 @@ export function NodeSocket({ node }: NodeSocketProps) {
         fontFamily: '"Fira Code", Consolas, monospace',
         userSelect: 'none',
         zIndex: 5,
+        cursor: 'default',
       }}
       {...(bind() as object)}
     >
