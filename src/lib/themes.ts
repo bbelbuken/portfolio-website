@@ -92,12 +92,12 @@ export const THEMES: ThemeDefinition[] = [
 ]
 
 export const ACCENT_COLORS: AccentColor[] = [
-  { id: 'rose', value: '#e05a6a' },
-  { id: 'cyan', value: '#4fc0d0' },
-  { id: 'amber', value: '#c8853a' },
-  { id: 'teal', value: '#2e8a72' },
-  { id: 'violet', value: '#7c5cbf' },
-  { id: 'slate', value: '#6b7d8c' },
+  { id: 'rose',   value: '#e05a6a', macBg: '#f0e3e5', macBgPattern: '#d4bbbf' },
+  { id: 'cyan',   value: '#4fc0d0', macBg: '#e3eff1', macBgPattern: '#b8d4d8' },
+  { id: 'amber',  value: '#c8853a', macBg: '#f0ece3', macBgPattern: '#d4c4a8' },
+  { id: 'teal',   value: '#2e8a72', macBg: '#e3f0ec', macBgPattern: '#b8d4ca' },
+  { id: 'violet', value: '#7c5cbf', macBg: '#ebe3f0', macBgPattern: '#c8b8d8' },
+  { id: 'slate',  value: '#6b7d8c', macBg: '#e3e9ee', macBgPattern: '#bec8d0' },
 ]
 
 export function applyTheme(
@@ -106,10 +106,26 @@ export function applyTheme(
   wallpaper: string,
 ): void {
   const root = document.documentElement
+
+  // Apply all preset base vars first
   Object.entries(preset.vars).forEach(([key, value]) => {
     root.style.setProperty(key, value)
   })
+
   root.style.setProperty('--accent', accentValue)
+
+  // For the Mac preset, override --bg and --bg-pattern with the
+  // accent's canvas tint so the background shifts with the accent color.
+  if (preset.id === 'mac') {
+    const accentDef = ACCENT_COLORS.find((a) => a.value === accentValue)
+    if (accentDef?.macBg) {
+      root.style.setProperty('--bg', accentDef.macBg)
+      root.style.setProperty('--bg-pattern', accentDef.macBgPattern ?? accentDef.macBg)
+      root.style.setProperty('--title-bar-bg', accentDef.macBgPattern ?? accentDef.macBg)
+      root.style.setProperty('--scrollbar-bg', accentDef.macBgPattern ?? accentDef.macBg)
+    }
+  }
+
   root.setAttribute('data-wallpaper', wallpaper)
   root.setAttribute('data-theme', preset.id)
 }

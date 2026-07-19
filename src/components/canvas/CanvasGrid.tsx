@@ -39,7 +39,7 @@ export function CanvasGrid() {
               cy={spacing / 2}
               r={dotSize}
               fill="var(--bg-pattern)"
-              opacity="0.7"
+              opacity="1"
             />
           </pattern>
           <pattern
@@ -54,8 +54,8 @@ export function CanvasGrid() {
               d={`M ${spacing} 0 L 0 0 0 ${spacing}`}
               fill="none"
               stroke="var(--bg-pattern)"
-              strokeWidth="0.5"
-              opacity="0.5"
+              strokeWidth="1"
+              opacity="0.85"
             />
           </pattern>
         </defs>

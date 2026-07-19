@@ -4,6 +4,9 @@ export type WallpaperPattern = 'dots' | 'grid' | 'plain'
 export interface AccentColor {
   id: string
   value: string
+  /** Canvas bg override used only when the Mac preset is active */
+  macBg?: string
+  macBgPattern?: string
 }
 
 export interface ThemeDefinition {

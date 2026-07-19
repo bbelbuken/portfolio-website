@@ -8,23 +8,23 @@
    Default theme (Mac) – overridden by themeStore
    ───────────────────────────────────────────── */
 :root {
-  --bg: #e8e0ec;
-  --bg-pattern: #c9bdd6;
-  --window-bg: #f5f0f8;
-  --window-border: #000000;
-  --window-shadow: 4px 4px 0px 0px #000000;
-  --title-bar-bg: #c9bdd6;
-  --title-bar-line: #a99ab8;
-  --text-primary: #1a1a1a;
-  --text-secondary: #555555;
-  --text-accent: var(--accent);
-  --accent: #e05a6a;
-  --port-bg: #ffffff;
-  --port-border: #000000;
-  --wire-color: #333333;
-  --wire-glow: none;
-  --scrollbar-bg: #c9bdd6;
-  --scrollbar-thumb: #888;
+    --bg: #e8e0ec;
+    --bg-pattern: #c9bdd6;
+    --window-bg: #f5f0f8;
+    --window-border: #000000;
+    --window-shadow: 4px 4px 0px 0px #000000;
+    --title-bar-bg: #c9bdd6;
+    --title-bar-line: #a99ab8;
+    --text-primary: #1a1a1a;
+    --text-secondary: #555555;
+    --text-accent: var(--accent);
+    --accent: #e05a6a;
+    --port-bg: #ffffff;
+    --port-border: #000000;
+    --wire-color: #333333;
+    --wire-glow: none;
+    --scrollbar-bg: #c9bdd6;
+    --scrollbar-thumb: #888;
 }
 
 /* ─────────────────────────────────────────────
@@ -33,87 +33,107 @@
    ───────────────────────────────────────────── */
 
 /* Dots: show dots, hide grid */
-:root[data-wallpaper="dots"] .canvas-dots-rect { display: block; }
-:root[data-wallpaper="dots"] .canvas-grid-rect  { display: none; }
+:root[data-wallpaper='dots'] .canvas-dots-rect {
+    display: block;
+}
+:root[data-wallpaper='dots'] .canvas-grid-rect {
+    display: none;
+}
 
 /* Grid: show grid, hide dots */
-:root[data-wallpaper="grid"] .canvas-dots-rect { display: none; }
-:root[data-wallpaper="grid"] .canvas-grid-rect  { display: block; }
+:root[data-wallpaper='grid'] .canvas-dots-rect {
+    display: none;
+}
+:root[data-wallpaper='grid'] .canvas-grid-rect {
+    display: block;
+}
 
 /* Plain: hide both */
-:root[data-wallpaper="plain"] .canvas-dots-rect { display: none; }
-:root[data-wallpaper="plain"] .canvas-grid-rect  { display: none; }
+:root[data-wallpaper='plain'] .canvas-dots-rect {
+    display: none;
+}
+:root[data-wallpaper='plain'] .canvas-grid-rect {
+    display: none;
+}
 
 /* Default fallback (dots) */
-.canvas-dots-rect { display: block; }
-.canvas-grid-rect  { display: none; }
+.canvas-dots-rect {
+    display: block;
+}
+.canvas-grid-rect {
+    display: none;
+}
 
 /* ─────────────────────────────────────────────
    Base resets
    ───────────────────────────────────────────── */
-*, *::before, *::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
-html, body, #root {
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  font-family: "Fira Code", Consolas, monospace;
-  background: var(--bg);
+html,
+body,
+#root {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: 'Fira Code', Consolas, monospace;
+    background: var(--bg);
 }
 
 /* GPU layer hint for canvas container */
 #canvas-content {
-  will-change: transform;
+    will-change: transform;
 }
 
 /* ─────────────────────────────────────────────
    Scrollbars (within node windows)
    ───────────────────────────────────────────── */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+    width: 6px;
+    height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--scrollbar-bg);
+    background: var(--scrollbar-bg);
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--scrollbar-thumb);
+    background: var(--scrollbar-thumb);
 }
 
 /* ─────────────────────────────────────────────
    CGA theme: neon glow text
    ───────────────────────────────────────────── */
-:root[data-theme="cga"] {
-  font-smooth: never;
-  -webkit-font-smoothing: none;
+:root[data-theme='cga'] {
+    font-smooth: never;
+    -webkit-font-smoothing: none;
 }
 
 /* ─────────────────────────────────────────────
    Term theme: scanline overlay
    ───────────────────────────────────────────── */
-:root[data-theme="term"] body::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 9999;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 2px,
-    rgba(0, 0, 0, 0.08) 2px,
-    rgba(0, 0, 0, 0.08) 4px
-  );
+:root[data-theme='term'] body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 0, 0, 0.08) 2px,
+        rgba(0, 0, 0, 0.08) 4px
+    );
 }
 
 /* ─────────────────────────────────────────────
    Utility: prevent text selection on canvas drag
    ───────────────────────────────────────────── */
 .no-select {
-  user-select: none;
-  -webkit-user-select: none;
+    user-select: none;
+    -webkit-user-select: none;
 }
