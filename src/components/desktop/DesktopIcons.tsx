@@ -56,7 +56,7 @@ export function DesktopIcons() {
           </div>
           <span
             className="text-[9px] text-center leading-tight"
-            style={{ color: 'var(--text-secondary)' }}
+            style={{ color: 'var(--text-folder)' }}
           >
             {icon.label}
           </span>

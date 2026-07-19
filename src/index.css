@@ -25,6 +25,10 @@
     --wire-glow: none;
     --scrollbar-bg: #c9bdd6;
     --scrollbar-thumb: #888;
+    --button-active-bg: var(--accent);
+    --button-active-text: #ffffff;
+    --text-header: #555555;
+    --text-folder: #333333;
 }
 
 /* ─────────────────────────────────────────────
@@ -105,11 +109,18 @@ body,
 }
 
 /* ─────────────────────────────────────────────
-   CGA theme: neon glow text
+   Per-theme hard overrides (guarantee correct grid/dot colors)
    ───────────────────────────────────────────── */
 :root[data-theme='cga'] {
+    --bg-pattern: #cc00cc;
     font-smooth: never;
     -webkit-font-smoothing: none;
+}
+:root[data-theme='dos'] {
+    --bg-pattern: #3333cc;
+}
+:root[data-theme='term'] {
+    --bg-pattern: #00bb33;
 }
 
 /* ─────────────────────────────────────────────

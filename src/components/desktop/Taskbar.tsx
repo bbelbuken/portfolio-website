@@ -30,7 +30,7 @@ function Clock() {
         <span
             className='text-[11px]'
             style={{
-                color: 'var(--text-secondary)',
+                color: 'var(--text-header)',
                 fontFamily: '"Fira Code", Consolas, monospace',
             }}
         >
@@ -77,7 +77,7 @@ export function Taskbar() {
                             href={l.href}
                             className='text-[11px] hover:underline'
                             style={{
-                                color: 'var(--text-secondary)',
+                                color: 'var(--text-header)',
                                 textDecoration: 'none',
                             }}
                             onClick={(e) => e.preventDefault()}
