@@ -25,7 +25,7 @@ export function NodeSocket({ node }: NodeSocketProps) {
     <motion.div
       ref={nodeRef}
       initial={{ scale: 0.8, opacity: 0 }}
-      animate={{ scale: isDropTarget ? 1.01 : 1, opacity: 1 }}
+      animate={{ scale: isDropTarget ? 1.04 : 1, opacity: 1 }}
       exit={{ scale: 0.6, opacity: 0 }}
       transition={{ type: 'spring', stiffness: 380, damping: 22 }}
       data-node={node.id}

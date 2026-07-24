@@ -84,7 +84,7 @@ export function WireOverlay() {
     <svg
       ref={svgRef}
       className="absolute inset-0 w-full h-full pointer-events-none overflow-visible"
-      style={{ willChange: 'transform', zIndex: 10 }}
+      style={{ willChange: 'transform', zIndex: 30 }}
       aria-hidden="true"
     >
       {wires.map((wire) => (

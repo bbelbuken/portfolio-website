@@ -17,6 +17,7 @@ export function useWireDrawing() {
   const draftPathRef = useRef<SVGPathElement | null>(null)
   const isDragging = useRef(false)
   const lastDropTarget = useRef<string | null>(null)
+  const lastHighlightedPort = useRef<HTMLElement | null>(null)
 
   /**
    * Convert a viewport (clientX, clientY) point into canvas-local coordinates
@@ -51,40 +52,65 @@ export function useWireDrawing() {
         const to = toCanvasCoords(ev.clientX, ev.clientY)
         updateDraftWire(to.x, to.y)
 
-        // Find a NodeSocket under the cursor to highlight as drop target.
-        // elementsFromPoint pierces through the SVG wire overlay.
+        // Find elements under cursor (pierces SVG overlay)
         const els = document.elementsFromPoint(ev.clientX, ev.clientY)
+
+        // Find the NodeSocket container under the cursor
         const nodeEl = els.find(
           (el) => (el as HTMLElement).dataset?.node,
         ) as HTMLElement | null
         const hoveredId = nodeEl?.dataset.node ?? null
-        if (hoveredId !== lastDropTarget.current) {
-          lastDropTarget.current = hoveredId
-          setWireDropTarget(hoveredId)
+
+        // Highlight the input port as soon as the wire touches the node container —
+        // skip ports that already have a wire connected
+        const candidatePort = nodeEl
+          ? (nodeEl.querySelector('[data-port-type="input"]') as HTMLElement | null)
+          : null
+        const existingWires = useGraphStore.getState().wires
+        const alreadyConnected = candidatePort
+          ? existingWires.some((w) => w.toPortId === candidatePort.dataset.port)
+          : false
+        const targetPort = alreadyConnected ? null : candidatePort
+
+        if (targetPort !== lastHighlightedPort.current) {
+          if (lastHighlightedPort.current) {
+            lastHighlightedPort.current.style.background = 'var(--port-bg)'
+            lastHighlightedPort.current.style.borderColor = 'var(--port-border)'
+          }
+          if (targetPort) {
+            targetPort.style.background = 'var(--accent)'
+            targetPort.style.borderColor = 'var(--accent)'
+          }
+          lastHighlightedPort.current = targetPort
+        }
+
+        const effectiveHoveredId = alreadyConnected ? null : hoveredId
+        if (effectiveHoveredId !== lastDropTarget.current) {
+          lastDropTarget.current = effectiveHoveredId
+          setWireDropTarget(effectiveHoveredId)
         }
       }
 
-      const onUp = (ev: PointerEvent) => {
+      const onUp = () => {
         isDragging.current = false
         lastDropTarget.current = null
         setWireDropTarget(null)
         window.removeEventListener('pointermove', onMove)
         window.removeEventListener('pointerup', onUp)
 
-        // Find if dropped on an input port
-        const el = document.elementFromPoint(ev.clientX, ev.clientY)
-        const portEl = el?.closest('[data-port]') as HTMLElement | null
-        if (portEl) {
-          const portId = portEl.dataset.port
-          const portType = portEl.dataset.portType
-          const portNodeId = portEl.dataset.portNodeId
-          if (portId && portType === 'input' && portNodeId) {
-            const inputPort: Port = {
-              id: portId,
-              nodeId: portNodeId,
-              type: 'input',
-            }
-            commitWire(inputPort)
+        // Commit to whichever port was highlighted during the drag
+        const droppedPort = lastHighlightedPort.current
+        if (lastHighlightedPort.current) {
+          lastHighlightedPort.current.style.background = 'var(--port-bg)'
+          lastHighlightedPort.current.style.borderColor = 'var(--port-border)'
+          lastHighlightedPort.current = null
+        }
+
+        if (droppedPort) {
+          const portId = (droppedPort as HTMLElement).dataset.port
+          const portNodeId = (droppedPort as HTMLElement).dataset.portNodeId
+          if (portId && portNodeId) {
+            commitWire({ id: portId, nodeId: portNodeId, type: 'input' })
             return
           }
         }
