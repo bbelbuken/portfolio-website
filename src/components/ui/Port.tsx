@@ -1,4 +1,5 @@
 import { useRef } from 'react'
+import { motion } from 'framer-motion'
 import type { Port as PortType } from '@/types'
 import { useWireDrawing } from '@/hooks/useWireDrawing'
 
@@ -24,7 +25,7 @@ export function Port({ port }: PortProps) {
         </span>
       )}
 
-      <div
+      <motion.div
         ref={portRef}
         data-port={port.id}
         data-port-type={port.type}
@@ -35,6 +36,8 @@ export function Port({ port }: PortProps) {
           border: '2px solid var(--port-border)',
           cursor: isOutput ? 'crosshair' : 'default',
         }}
+        whileHover={{ scale: 1.2 }}
+        transition={{ type: 'spring', stiffness: 500, damping: 20 }}
         onPointerDown={
           isOutput
             ? (e) => onPortPointerDown(e, port, portRef.current!)

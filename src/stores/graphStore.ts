@@ -6,6 +6,7 @@ interface GraphStore {
   nodes: NodeData[]
   wires: Wire[]
   draftWire: DraftWire | null
+  wireDropTarget: string | null
 
   setNodePosition: (nodeId: string, x: number, y: number) => void
   setNodeState: (nodeId: string, state: 'idle' | 'connected') => void
@@ -16,6 +17,7 @@ interface GraphStore {
   removeWire: (wireId: string) => void
   getPortById: (portId: string) => Port | undefined
   getNodeById: (nodeId: string) => NodeData | undefined
+  setWireDropTarget: (nodeId: string | null) => void
 }
 
 let wireIdCounter = 0
@@ -24,6 +26,7 @@ export const useGraphStore = create<GraphStore>((set, get) => ({
   nodes: INITIAL_NODES,
   wires: INITIAL_WIRES,
   draftWire: null,
+  wireDropTarget: null,
 
   setNodePosition: (nodeId, x, y) =>
     set((s) => ({
@@ -74,6 +77,8 @@ export const useGraphStore = create<GraphStore>((set, get) => ({
   },
 
   cancelDraftWire: () => set({ draftWire: null }),
+
+  setWireDropTarget: (nodeId) => set({ wireDropTarget: nodeId }),
 
   removeWire: (wireId) => {
     const { wires, nodes } = get()

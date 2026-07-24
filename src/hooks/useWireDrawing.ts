@@ -12,10 +12,11 @@ export function useWireDrawing() {
   const updateDraftWire = useGraphStore((s) => s.updateDraftWire)
   const commitWire = useGraphStore((s) => s.commitWire)
   const cancelDraftWire = useGraphStore((s) => s.cancelDraftWire)
+  const setWireDropTarget = useGraphStore((s) => s.setWireDropTarget)
 
-  // SVG path element updated during drag without React
   const draftPathRef = useRef<SVGPathElement | null>(null)
   const isDragging = useRef(false)
+  const lastDropTarget = useRef<string | null>(null)
 
   /**
    * Convert a viewport (clientX, clientY) point into canvas-local coordinates
@@ -49,10 +50,24 @@ export function useWireDrawing() {
         if (!isDragging.current) return
         const to = toCanvasCoords(ev.clientX, ev.clientY)
         updateDraftWire(to.x, to.y)
+
+        // Find a NodeSocket under the cursor to highlight as drop target.
+        // elementsFromPoint pierces through the SVG wire overlay.
+        const els = document.elementsFromPoint(ev.clientX, ev.clientY)
+        const nodeEl = els.find(
+          (el) => (el as HTMLElement).dataset?.node,
+        ) as HTMLElement | null
+        const hoveredId = nodeEl?.dataset.node ?? null
+        if (hoveredId !== lastDropTarget.current) {
+          lastDropTarget.current = hoveredId
+          setWireDropTarget(hoveredId)
+        }
       }
 
       const onUp = (ev: PointerEvent) => {
         isDragging.current = false
+        lastDropTarget.current = null
+        setWireDropTarget(null)
         window.removeEventListener('pointermove', onMove)
         window.removeEventListener('pointerup', onUp)
 
@@ -79,7 +94,7 @@ export function useWireDrawing() {
       window.addEventListener('pointermove', onMove)
       window.addEventListener('pointerup', onUp)
     },
-    [toCanvasCoords, startDraftWire, updateDraftWire, commitWire, cancelDraftWire],
+    [toCanvasCoords, startDraftWire, updateDraftWire, commitWire, cancelDraftWire, setWireDropTarget],
   )
 
   return { onPortPointerDown, draftPathRef }

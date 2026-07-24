@@ -13,6 +13,8 @@ export function useNodeDrag(
 
   const startX = useRef(0)
   const startY = useRef(0)
+  // Guard: only commit position if a real drag (not a tap) actually started
+  const dragStarted = useRef(false)
 
   const applyPos = useCallback(
     (x: number, y: number) => {
@@ -28,20 +30,24 @@ export function useNodeDrag(
       onDragStart: () => {
         const node = getNodeById(nodeId)
         if (!node) return
+        dragStarted.current = true
         startX.current = node.x
         startY.current = node.y
       },
       onDrag: ({ delta: [dx, dy] }) => {
+        if (!dragStarted.current) return
         startX.current += dx / canvasScale
         startY.current += dy / canvasScale
         applyPos(startX.current, startY.current)
       },
       onDragEnd: () => {
+        if (!dragStarted.current) return
+        dragStarted.current = false
         setNodePosition(nodeId, startX.current, startY.current)
       },
     },
     {
-      drag: { filterTaps: true },
+      drag: { filterTaps: true, threshold: 4 },
     },
   )
 
