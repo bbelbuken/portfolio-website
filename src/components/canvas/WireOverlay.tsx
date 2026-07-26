@@ -131,7 +131,7 @@ export function WireOverlay() {
                             data-wire-vis={wire.id}
                             fill='none'
                             stroke={hot ? DANGER : 'var(--wire-color)'}
-                            strokeWidth={hot ? 3 : 2}
+                            strokeWidth={2}
                             strokeLinecap='round'
                             style={{
                                 filter: hot
@@ -163,3 +163,4 @@ export function WireOverlay() {
         </svg>
     );
 }
+
