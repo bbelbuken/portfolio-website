@@ -1,5 +1,6 @@
 import { AnimatePresence } from 'framer-motion'
 import type { NodeData } from '@/types'
+import { visibleNodeIds } from '@/lib/graph'
 import { AboutNode } from './AboutNode'
 import { CodeBranchNode } from './CodeBranchNode'
 import { AudioBranchNode } from './AudioBranchNode'
@@ -40,9 +41,12 @@ function renderNode(node: NodeData) {
 }
 
 export function NodeRenderer({ nodes }: NodeRendererProps) {
+  // Children stay off the canvas until their parent branch is connected
+  const visible = visibleNodeIds(nodes)
+
   return (
     <AnimatePresence>
-      {nodes.map((node) => renderNode(node))}
+      {nodes.filter((node) => visible.has(node.id)).map((node) => renderNode(node))}
     </AnimatePresence>
   )
 }

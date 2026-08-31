@@ -21,18 +21,15 @@ interface NodeWindowProps {
 export function NodeWindow({ node, children, width = 300, minWidth = 220 }: NodeWindowProps) {
   const nodeRef = useRef<HTMLDivElement>(null)
   const bind = useNodeDrag(node.id, nodeRef as React.RefObject<HTMLDivElement | null>)
-  const removeWire = useGraphStore((s) => s.removeWire)
+  const closeNode = useGraphStore((s) => s.closeNode)
   const bringToFront = useGraphStore((s) => s.bringToFront)
   const zOrder = useGraphStore((s) => s.zOrder)
-  const wires = useGraphStore((s) => s.wires)
 
   const outputPorts = node.ports.filter((p) => p.type === 'output')
   const inputPorts = node.ports.filter((p) => p.type === 'input')
 
   function handleClose() {
-    // Remove all wires going TO this node, reverting it to idle
-    const incoming = wires.filter((w) => w.toNodeId === node.id)
-    incoming.forEach((w) => removeWire(w.id))
+    closeNode(node.id)
   }
 
   return (
@@ -72,9 +69,10 @@ export function NodeWindow({ node, children, width = 300, minWidth = 220 }: Node
         title={node.label}
         onClose={!node.alwaysExpanded ? handleClose : undefined}
       >
-        {/* Draggable title bar */}
+        {/* Draggable title bar — stops short of the close button */}
         <div
-          className="absolute inset-x-0 top-0 h-7 cursor-move"
+          className="absolute top-0 h-7 cursor-move"
+          style={{ left: 0, right: 34 }}
           {...(bind() as object)}
         />
 

@@ -18,6 +18,8 @@ export const INITIAL_NODES: NodeData[] = [
     id: 'code-branch',
     type: 'code-branch',
     label: 'code.branch',
+    parentId: 'about',
+    parentPortId: 'about-out-code',
     x: 520,
     y: 60,
     state: 'idle',
@@ -32,6 +34,8 @@ export const INITIAL_NODES: NodeData[] = [
     id: 'audio-branch',
     type: 'audio-branch',
     label: 'audio.branch',
+    parentId: 'about',
+    parentPortId: 'about-out-audio',
     x: 520,
     y: 320,
     state: 'idle',
@@ -46,6 +50,8 @@ export const INITIAL_NODES: NodeData[] = [
     id: 'projects',
     type: 'projects',
     label: 'projects.code',
+    parentId: 'code-branch',
+    parentPortId: 'code-out-projects',
     x: 880,
     y: -40,
     state: 'idle',
@@ -57,6 +63,8 @@ export const INITIAL_NODES: NodeData[] = [
     id: 'experience',
     type: 'experience',
     label: 'experience.log',
+    parentId: 'code-branch',
+    parentPortId: 'code-out-exp',
     x: 880,
     y: 100,
     state: 'idle',
@@ -68,6 +76,8 @@ export const INITIAL_NODES: NodeData[] = [
     id: 'contact',
     type: 'contact',
     label: 'contact.sh',
+    parentId: 'code-branch',
+    parentPortId: 'code-out-contact',
     x: 880,
     y: 220,
     state: 'idle',
@@ -79,6 +89,8 @@ export const INITIAL_NODES: NodeData[] = [
     id: 'albums',
     type: 'albums',
     label: 'albums.wav',
+    parentId: 'audio-branch',
+    parentPortId: 'audio-out-albums',
     x: 880,
     y: 280,
     state: 'idle',
@@ -90,6 +102,8 @@ export const INITIAL_NODES: NodeData[] = [
     id: 'remixes',
     type: 'remixes',
     label: 'remixes.flac',
+    parentId: 'audio-branch',
+    parentPortId: 'audio-out-remixes',
     x: 880,
     y: 400,
     state: 'idle',
@@ -101,6 +115,8 @@ export const INITIAL_NODES: NodeData[] = [
     id: 'ads',
     type: 'ads',
     label: 'ads.mp4',
+    parentId: 'audio-branch',
+    parentPortId: 'audio-out-ads',
     x: 880,
     y: 520,
     state: 'idle',
@@ -111,3 +127,29 @@ export const INITIAL_NODES: NodeData[] = [
 ]
 
 export const INITIAL_WIRES: Wire[] = []
+
+/**
+ * A node is on screen only once its parent is connected — so the canvas starts
+ * with about.md plus the two branches, and each branch reveals its own children.
+ */
+export function visibleNodeIds(nodes: NodeData[]): Set<string> {
+  const byId = new Map(nodes.map((n) => [n.id, n]))
+  const visible = new Set<string>()
+
+  function isVisible(node: NodeData): boolean {
+    if (!node.parentId) return true
+    const parent = byId.get(node.parentId)
+    if (!parent) return true
+    return isVisible(parent) && (parent.state === 'connected' || !!parent.alwaysExpanded)
+  }
+
+  for (const node of nodes) {
+    if (isVisible(node)) visible.add(node.id)
+  }
+  return visible
+}
+
+/** Direct children of a node, in declaration order. */
+export function childrenOf(nodes: NodeData[], nodeId: string): NodeData[] {
+  return nodes.filter((n) => n.parentId === nodeId)
+}

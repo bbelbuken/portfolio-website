@@ -71,6 +71,8 @@ export function RetroWindow({
                                 color: 'var(--text-primary)',
                                 cursor: 'pointer',
                                 lineHeight: 1,
+                                position: 'relative',
+                                zIndex: 1,
                             }}
                             aria-label='Close'
                         >

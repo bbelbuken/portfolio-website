@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { ThemeControl } from './ThemeControl';
+import { NavMenu } from './NavMenu';
+import { useGraphStore } from '@/stores/graphStore';
 
+/** Plain links; 'code' and 'audio' are rendered as NavMenu dropdowns instead. */
 const NAV_LINKS = [
     { label: 'about', href: '#about' },
-    { label: 'code', href: '#code' },
-    { label: 'audio', href: '#audio' },
     { label: 'contact', href: '#contact' },
 ];
 
@@ -40,6 +41,12 @@ function Clock() {
 }
 
 export function Taskbar() {
+    const nodes = useGraphStore((s) => s.nodes);
+    const openNode = useGraphStore((s) => s.openNode);
+    const closeNode = useGraphStore((s) => s.closeNode);
+    const contactOpen =
+        nodes.find((n) => n.id === 'contact')?.state === 'connected';
+
     return (
         <header
             className='fixed top-0 inset-x-0 z-40 flex items-center justify-between px-4'
@@ -71,20 +78,39 @@ export function Taskbar() {
                 </span>
 
                 <nav className='flex items-center gap-4'>
-                    {NAV_LINKS.map((l) => (
-                        <a
-                            key={l.label}
-                            href={l.href}
-                            className='text-[11px] hover:underline'
-                            style={{
-                                color: 'var(--text-header)',
-                                textDecoration: 'none',
-                            }}
-                            onClick={(e) => e.preventDefault()}
-                        >
-                            {l.label}
-                        </a>
-                    ))}
+                    <a
+                        href='#about'
+                        className='text-[11px] hover:underline'
+                        style={{
+                            color: 'var(--text-header)',
+                            textDecoration: 'none',
+                        }}
+                        onClick={(e) => e.preventDefault()}
+                    >
+                        {NAV_LINKS[0].label}
+                    </a>
+
+                    <NavMenu label='code' branchId='code-branch' />
+                    <NavMenu label='audio' branchId='audio-branch' />
+
+                    <a
+                        href='#contact'
+                        className='text-[11px] hover:underline'
+                        style={{
+                            color: 'var(--text-header)',
+                            textDecoration: 'none',
+                            cursor: 'pointer',
+                        }}
+                        onClick={(e) => {
+                            e.preventDefault();
+                            // contact.sh hangs off code.branch — openNode wires
+                            // up the branch first if it is still closed
+                            if (contactOpen) closeNode('contact');
+                            else openNode('contact');
+                        }}
+                    >
+                        {NAV_LINKS[1].label}
+                    </a>
                 </nav>
             </div>
 

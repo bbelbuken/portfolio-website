@@ -34,6 +34,10 @@ export interface NodeData {
   state: NodeState
   ports: Port[]
   alwaysExpanded?: boolean
+  /** Node this one hangs off; it stays hidden until the parent is connected */
+  parentId?: string
+  /** Output port on the parent that feeds this node's input */
+  parentPortId?: string
 }
 
 export interface Wire {
