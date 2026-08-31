@@ -5,6 +5,7 @@ import { Port } from '@/components/ui/Port'
 import { RetroWindow } from '@/components/ui/RetroWindow'
 import { useNodeDrag } from '@/hooks/useNodeDrag'
 import { useGraphStore } from '@/stores/graphStore'
+import { nodeZIndex } from '@/lib/layers'
 
 interface NodeWindowProps {
   node: NodeData
@@ -21,6 +22,8 @@ export function NodeWindow({ node, children, width = 300, minWidth = 220 }: Node
   const nodeRef = useRef<HTMLDivElement>(null)
   const bind = useNodeDrag(node.id, nodeRef as React.RefObject<HTMLDivElement | null>)
   const removeWire = useGraphStore((s) => s.removeWire)
+  const bringToFront = useGraphStore((s) => s.bringToFront)
+  const zOrder = useGraphStore((s) => s.zOrder)
   const wires = useGraphStore((s) => s.wires)
 
   const outputPorts = node.ports.filter((p) => p.type === 'output')
@@ -41,13 +44,14 @@ export function NodeWindow({ node, children, width = 300, minWidth = 220 }: Node
       exit={{ scale: 0.7, opacity: 0 }}
       transition={{ type: 'spring', stiffness: 280, damping: 22 }}
       data-node={node.id}
+      onPointerDown={() => bringToFront(node.id)}
       className="absolute"
       style={{
         left: node.x,
         top: node.y,
         width,
         minWidth,
-        zIndex: 5,
+        zIndex: nodeZIndex(zOrder, node.id),
         userSelect: 'none',
         cursor: 'default',
       }}

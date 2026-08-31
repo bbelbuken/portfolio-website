@@ -7,8 +7,11 @@ interface GraphStore {
   wires: Wire[]
   draftWire: DraftWire | null
   wireDropTarget: string | null
+  /** Node ids ordered back-to-front; the last entry renders on top */
+  zOrder: string[]
 
   setNodePosition: (nodeId: string, x: number, y: number) => void
+  bringToFront: (nodeId: string) => void
   setNodeState: (nodeId: string, state: 'idle' | 'connected') => void
   startDraftWire: (fromPortId: string, fromNodeId: string, fromX: number, fromY: number) => void
   updateDraftWire: (toX: number, toY: number) => void
@@ -27,11 +30,19 @@ export const useGraphStore = create<GraphStore>((set, get) => ({
   wires: INITIAL_WIRES,
   draftWire: null,
   wireDropTarget: null,
+  zOrder: INITIAL_NODES.map((n) => n.id),
 
   setNodePosition: (nodeId, x, y) =>
     set((s) => ({
       nodes: s.nodes.map((n) => (n.id === nodeId ? { ...n, x, y } : n)),
     })),
+
+  bringToFront: (nodeId) =>
+    set((s) =>
+      s.zOrder[s.zOrder.length - 1] === nodeId
+        ? s
+        : { zOrder: [...s.zOrder.filter((id) => id !== nodeId), nodeId] },
+    ),
 
   setNodeState: (nodeId, state) =>
     set((s) => ({

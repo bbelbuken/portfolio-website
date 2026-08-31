@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useGraphStore } from '@/stores/graphStore';
 import { cubicBezierPath } from '@/lib/bezier';
+import { FRONT_WIRE_Z, WIRE_Z } from '@/lib/layers';
 
 const DANGER = '#ef4444';
 // Red × cursor so intent is immediately obvious
@@ -38,9 +39,19 @@ export function WireOverlay() {
     const wires = useGraphStore((s) => s.wires);
     const draftWire = useGraphStore((s) => s.draftWire);
     const removeWire = useGraphStore((s) => s.removeWire);
+    const zOrder = useGraphStore((s) => s.zOrder);
+    const frontNodeId = zOrder[zOrder.length - 1];
     const [hoveredWire, setHoveredWire] = useState<string | null>(null);
 
-    const svgRef = useRef<SVGSVGElement>(null);
+    // Wires touching the front-most node render above it; the rest below.
+    const frontWires = wires.filter(
+        (w) => w.fromNodeId === frontNodeId || w.toNodeId === frontNodeId,
+    );
+    const baseWires = wires.filter(
+        (w) => w.fromNodeId !== frontNodeId && w.toNodeId !== frontNodeId,
+    );
+
+    const rootRef = useRef<HTMLDivElement>(null);
 
     // Keep refs always current — updated synchronously on every render
     const wiresRef = useRef(wires);
@@ -52,18 +63,18 @@ export function WireOverlay() {
         let rafId: number;
 
         function tick() {
-            const svg = svgRef.current;
-            if (svg) {
+            const root = rootRef.current;
+            if (root) {
                 // Committed wires — update hit area and visible path
                 for (const wire of wiresRef.current) {
                     const from = portCenter(wire.fromPortId);
                     const to = portCenter(wire.toPortId);
                     if (!from || !to) continue;
                     const d = cubicBezierPath(from.x, from.y, to.x, to.y);
-                    svg.querySelector<SVGPathElement>(
+                    root.querySelector<SVGPathElement>(
                         `[data-wire-hit="${wire.id}"]`,
                     )?.setAttribute('d', d);
-                    svg.querySelector<SVGPathElement>(
+                    root.querySelector<SVGPathElement>(
                         `[data-wire-vis="${wire.id}"]`,
                     )?.setAttribute('d', d);
                 }
@@ -71,7 +82,7 @@ export function WireOverlay() {
                 // Draft wire — recompute "from" live so it follows the port if the node is dragged
                 const draft = draftWireRef.current;
                 const draftPath =
-                    svg.querySelector<SVGPathElement>('[data-wire-draft]');
+                    root.querySelector<SVGPathElement>('[data-wire-draft]');
                 if (draft && draftPath) {
                     const from = portCenter(draft.fromPortId);
                     if (from) {
@@ -98,69 +109,84 @@ export function WireOverlay() {
         return () => cancelAnimationFrame(rafId);
     }, []); // runs once — data comes from refs updated on each render
 
-    return (
-        <svg
-            ref={svgRef}
-            className='absolute inset-0 w-full h-full pointer-events-none overflow-visible'
-            style={{ willChange: 'transform', zIndex: 30 }}
-            aria-hidden='true'
-        >
-            {wires.map((wire) => {
-                const hot = hoveredWire === wire.id;
-                return (
-                    <g key={wire.id}>
-                        {/* Wide transparent hit area */}
-                        <path
-                            data-wire-hit={wire.id}
-                            fill='none'
-                            stroke='transparent'
-                            strokeWidth={14}
-                            style={{
-                                pointerEvents: 'stroke',
-                                cursor: CUT_CURSOR,
-                            }}
-                            onPointerEnter={() => setHoveredWire(wire.id)}
-                            onPointerLeave={() => setHoveredWire(null)}
-                            onClick={() => {
-                                setHoveredWire(null);
-                                removeWire(wire.id);
-                            }}
-                        />
-                        {/* Visible wire — turns red + glows on hover */}
-                        <path
-                            data-wire-vis={wire.id}
-                            fill='none'
-                            stroke={hot ? DANGER : 'var(--wire-color)'}
-                            strokeWidth={2}
-                            strokeLinecap='round'
-                            style={{
-                                filter: hot
-                                    ? 'drop-shadow(0 0 4px rgba(146, 39, 39, 0.5))'
-                                    : 'var(--wire-glow)',
-                                transition:
-                                    'stroke 0.12s, stroke-width 0.12s, filter 0.12s',
-                                pointerEvents: 'none',
-                            }}
-                        />
-                    </g>
-                );
-            })}
+    function renderWire(wire: { id: string }) {
+        const hot = hoveredWire === wire.id;
+        return (
+            <g key={wire.id}>
+                {/* Wide transparent hit area */}
+                <path
+                    data-wire-hit={wire.id}
+                    fill='none'
+                    stroke='transparent'
+                    strokeWidth={14}
+                    style={{
+                        pointerEvents: 'stroke',
+                        cursor: CUT_CURSOR,
+                    }}
+                    onPointerEnter={() => setHoveredWire(wire.id)}
+                    onPointerLeave={() => setHoveredWire(null)}
+                    onClick={() => {
+                        setHoveredWire(null);
+                        removeWire(wire.id);
+                    }}
+                />
+                {/* Visible wire — turns red + glows on hover */}
+                <path
+                    data-wire-vis={wire.id}
+                    fill='none'
+                    stroke={hot ? DANGER : 'var(--wire-color)'}
+                    strokeWidth={2}
+                    strokeLinecap='round'
+                    style={{
+                        filter: hot
+                            ? 'drop-shadow(0 0 4px rgba(146, 39, 39, 0.5))'
+                            : 'var(--wire-glow)',
+                        transition:
+                            'stroke 0.12s, stroke-width 0.12s, filter 0.12s',
+                        pointerEvents: 'none',
+                    }}
+                />
+            </g>
+        );
+    }
 
-            {/* Draft wire — always in DOM, shown/hidden by the RAF tick */}
-            <path
-                data-wire-draft=''
-                fill='none'
-                stroke='var(--accent)'
-                strokeWidth={2}
-                strokeDasharray='6 4'
-                strokeLinecap='round'
-                opacity={0.85}
-                style={{
-                    display: 'none',
-                    filter: 'drop-shadow(0 0 4px var(--accent))',
-                }}
-            />
-        </svg>
+    const svgClass =
+        'absolute inset-0 w-full h-full pointer-events-none overflow-visible';
+
+    return (
+        <div ref={rootRef} className='absolute inset-0'>
+            {/* Wires not touching the front-most node — they pass behind it */}
+            <svg
+                className={svgClass}
+                style={{ willChange: 'transform', zIndex: WIRE_Z }}
+                aria-hidden='true'
+            >
+                {baseWires.map(renderWire)}
+            </svg>
+
+            {/* Wires attached to the front-most node — drawn on top of it */}
+            <svg
+                className={svgClass}
+                style={{ willChange: 'transform', zIndex: FRONT_WIRE_Z }}
+                aria-hidden='true'
+            >
+                {frontWires.map(renderWire)}
+
+                {/* Draft wire — always in DOM, shown/hidden by the RAF tick */}
+                <path
+                    data-wire-draft=''
+                    fill='none'
+                    stroke='var(--accent)'
+                    strokeWidth={2}
+                    strokeDasharray='6 4'
+                    strokeLinecap='round'
+                    opacity={0.85}
+                    style={{
+                        display: 'none',
+                        filter: 'drop-shadow(0 0 4px var(--accent))',
+                    }}
+                />
+            </svg>
+        </div>
     );
 }
-

@@ -4,6 +4,7 @@ import type { NodeData } from '@/types'
 import { Port } from '@/components/ui/Port'
 import { useNodeDrag } from '@/hooks/useNodeDrag'
 import { useGraphStore } from '@/stores/graphStore'
+import { nodeZIndex } from '@/lib/layers'
 
 interface NodeSocketProps {
   node: NodeData
@@ -17,6 +18,8 @@ export function NodeSocket({ node }: NodeSocketProps) {
   const nodeRef = useRef<HTMLDivElement>(null)
   const bind = useNodeDrag(node.id, nodeRef as React.RefObject<HTMLDivElement | null>)
   const wireDropTarget = useGraphStore((s) => s.wireDropTarget)
+  const bringToFront = useGraphStore((s) => s.bringToFront)
+  const zOrder = useGraphStore((s) => s.zOrder)
 
   const inputPorts = node.ports.filter((p) => p.type === 'input')
   const isDropTarget = wireDropTarget === node.id
@@ -29,6 +32,7 @@ export function NodeSocket({ node }: NodeSocketProps) {
       exit={{ scale: 0.6, opacity: 0 }}
       transition={{ type: 'spring', stiffness: 380, damping: 22 }}
       data-node={node.id}
+      onPointerDown={() => bringToFront(node.id)}
       className="absolute flex items-center gap-2 px-3 py-1.5"
       style={{
         left: node.x,
@@ -40,7 +44,7 @@ export function NodeSocket({ node }: NodeSocketProps) {
           : 'var(--window-shadow)',
         fontFamily: '"Fira Code", Consolas, monospace',
         userSelect: 'none',
-        zIndex: isDropTarget ? 10 : 5,
+        zIndex: nodeZIndex(zOrder, node.id) + (isDropTarget ? 10 : 0),
         cursor: 'default',
       }}
       {...(bind() as object)}
