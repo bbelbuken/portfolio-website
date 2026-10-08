@@ -43,6 +43,8 @@ function Clock() {
 export function Taskbar() {
     const nodes = useGraphStore((s) => s.nodes);
     const openNode = useGraphStore((s) => s.openNode);
+    const pulseNode = useGraphStore((s) => s.pulseNode);
+    const bringToFront = useGraphStore((s) => s.bringToFront);
     const closeNode = useGraphStore((s) => s.closeNode);
     const contactOpen =
         nodes.find((n) => n.id === 'contact')?.state === 'connected';
@@ -86,7 +88,12 @@ export function Taskbar() {
                             color: 'var(--text-header)',
                             textDecoration: 'none',
                         }}
-                        onClick={(e) => e.preventDefault()}
+                        onClick={(e) => {
+                            e.preventDefault();
+                            // about.md is always open — bounce it instead
+                            bringToFront('about');
+                            pulseNode('about');
+                        }}
                     >
                         {NAV_LINKS[0].label}
                     </a>

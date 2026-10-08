@@ -1,33 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { useGraphStore } from '@/stores/graphStore';
 import { cubicBezierPath } from '@/lib/bezier';
+import { portCenter } from '@/lib/ports';
 import { FRONT_WIRE_Z, WIRE_Z } from '@/lib/layers';
+import { CanvasLayer } from './CanvasLayer';
 
 const DANGER = '#ef4444';
 // Red × cursor so intent is immediately obvious
 const CUT_CURSOR = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20'%3E%3Cline x1='3' y1='3' x2='17' y2='17' stroke='%23ef4444' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='17' y1='3' x2='3' y2='17' stroke='%23ef4444' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E") 10 10, crosshair`;
-
-/**
- * Convert a port element's live viewport position into canvas-local coords.
- * getBoundingClientRect() already includes the CSS transform, so
- * (portCenter - canvasOrigin) / scale gives the correct local coordinate.
- */
-function portCenter(portId: string): { x: number; y: number } | null {
-    const el = document.querySelector(
-        `[data-port="${portId}"]`,
-    ) as HTMLElement | null;
-    if (!el) return null;
-    const canvasContent = document.getElementById('canvas-content');
-    if (!canvasContent) return null;
-    const canvasRect = canvasContent.getBoundingClientRect();
-    const portRect = el.getBoundingClientRect();
-    const scale =
-        new DOMMatrix(window.getComputedStyle(canvasContent).transform).a || 1;
-    return {
-        x: (portRect.left + portRect.width / 2 - canvasRect.left) / scale,
-        y: (portRect.top + portRect.height / 2 - canvasRect.top) / scale,
-    };
-}
 
 /**
  * Single SVG overlay for all wires.
@@ -150,26 +130,13 @@ export function WireOverlay() {
         );
     }
 
-    const svgClass =
-        'absolute inset-0 w-full h-full pointer-events-none overflow-visible';
-
     return (
         <div ref={rootRef} className='absolute inset-0'>
             {/* Wires not touching the front-most node — they pass behind it */}
-            <svg
-                className={svgClass}
-                style={{ willChange: 'transform', zIndex: WIRE_Z }}
-                aria-hidden='true'
-            >
-                {baseWires.map(renderWire)}
-            </svg>
+            <CanvasLayer zIndex={WIRE_Z}>{baseWires.map(renderWire)}</CanvasLayer>
 
             {/* Wires attached to the front-most node — drawn on top of it */}
-            <svg
-                className={svgClass}
-                style={{ willChange: 'transform', zIndex: FRONT_WIRE_Z }}
-                aria-hidden='true'
-            >
+            <CanvasLayer zIndex={FRONT_WIRE_Z}>
                 {frontWires.map(renderWire)}
 
                 {/* Draft wire — always in DOM, shown/hidden by the RAF tick */}
@@ -186,7 +153,7 @@ export function WireOverlay() {
                         filter: 'drop-shadow(0 0 4px var(--accent))',
                     }}
                 />
-            </svg>
+            </CanvasLayer>
         </div>
     );
 }

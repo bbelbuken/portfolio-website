@@ -1,4 +1,4 @@
-import { useRef, type ReactNode } from 'react'
+import { useEffect, useRef, type ReactNode } from 'react'
 import { motion } from 'framer-motion'
 import type { NodeData } from '@/types'
 import { Port } from '@/components/ui/Port'
@@ -22,11 +22,27 @@ export function NodeWindow({ node, children, width = 300, minWidth = 220 }: Node
   const nodeRef = useRef<HTMLDivElement>(null)
   const bind = useNodeDrag(node.id, nodeRef as React.RefObject<HTMLDivElement | null>)
   const closeNode = useGraphStore((s) => s.closeNode)
+  const pulse = useGraphStore((s) => s.pulse)
   const bringToFront = useGraphStore((s) => s.bringToFront)
   const zOrder = useGraphStore((s) => s.zOrder)
 
   const outputPorts = node.ports.filter((p) => p.type === 'output')
   const inputPorts = node.ports.filter((p) => p.type === 'input')
+
+  // A header link asked this window to announce itself. The Web Animations
+  // API briefly overrides the inline transform and hands it straight back,
+  // so it never fights framer-motion's own animations.
+  useEffect(() => {
+    if (!pulse || pulse.nodeId !== node.id || !nodeRef.current) return
+    nodeRef.current.animate(
+      [
+        { transform: 'scale(1)' },
+        { transform: 'scale(1.06)' },
+        { transform: 'scale(1)' },
+      ],
+      { duration: 420, easing: 'ease-in-out' },
+    )
+  }, [pulse, node.id])
 
   function handleClose() {
     closeNode(node.id)

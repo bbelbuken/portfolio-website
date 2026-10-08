@@ -7,6 +7,8 @@ export const NODE_Z_BASE = 5
 export const WIRE_Z = 30
 /** Wires attached to the front-most node — drawn on top of it */
 export const FRONT_WIRE_Z = 32
+/** First-run tutorial — above everything on the canvas, below the header */
+export const TUTORIAL_Z = 33
 
 /**
  * z-index for a node, derived from its place in the graph store's zOrder.

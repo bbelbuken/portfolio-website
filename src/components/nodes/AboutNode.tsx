@@ -1,11 +1,15 @@
 import type { NodeData } from '@/types'
 import { NodeWindow } from './NodeWindow'
+import { useTutorialActive } from '@/hooks/useTutorial'
 
 interface AboutNodeProps {
   node: NodeData
 }
 
 export function AboutNode({ node }: AboutNodeProps) {
+  // The hints pulse until the first wire is connected
+  const hinting = useTutorialActive()
+
   return (
     <NodeWindow node={node} width={340}>
       <div
@@ -31,17 +35,35 @@ export function AboutNode({ node }: AboutNodeProps) {
           className="pt-2 text-[10px] space-y-1"
           style={{
             borderTop: '1px solid var(--window-border)',
-            color: 'var(--text-secondary)',
+            color: hinting ? 'var(--accent)' : 'var(--text-secondary)',
           }}
         >
           <p>
-            <span style={{ color: 'var(--accent)' }}>{'→'}</span> Connect a wire to explore
+            <span
+              className={hinting ? 'hint-blink' : undefined}
+              style={{ color: 'var(--accent)' }}
+            >
+              {'→'}
+            </span>{' '}
+            Connect a wire to explore
           </p>
           <p>
-            <span style={{ color: 'var(--accent)' }}>{'→'}</span> Scroll / pinch to zoom canvas
+            <span
+              className={hinting ? 'hint-blink' : undefined}
+              style={{ color: 'var(--accent)' }}
+            >
+              {'→'}
+            </span>{' '}
+            Scroll / pinch to zoom canvas
           </p>
           <p>
-            <span style={{ color: 'var(--accent)' }}>{'→'}</span> Drag nodes to rearrange
+            <span
+              className={hinting ? 'hint-blink' : undefined}
+              style={{ color: 'var(--accent)' }}
+            >
+              {'→'}
+            </span>{' '}
+            Drag nodes to rearrange
           </p>
         </div>
       </div>

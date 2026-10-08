@@ -15,9 +15,13 @@ interface GraphStore {
   wireDropTarget: string | null
   /** Node ids ordered back-to-front; the last entry renders on top */
   zOrder: string[]
+  /** Last node asked to draw attention to itself; n re-triggers the pulse */
+  pulse: { nodeId: string; n: number } | null
 
   setNodePosition: (nodeId: string, x: number, y: number) => void
   bringToFront: (nodeId: string) => void
+  /** Make a node bounce once — used by the header links */
+  pulseNode: (nodeId: string) => void
   setNodeState: (nodeId: string, state: 'idle' | 'connected') => void
   /** Connect a node to its parent port, opening the parent chain first */
   openNode: (nodeId: string) => void
@@ -74,11 +78,15 @@ export const useGraphStore = create<GraphStore>((set, get) => ({
   draftWire: null,
   wireDropTarget: null,
   zOrder: INITIAL_NODES.map((n) => n.id),
+  pulse: null,
 
   setNodePosition: (nodeId, x, y) =>
     set((s) => ({
       nodes: s.nodes.map((n) => (n.id === nodeId ? { ...n, x, y } : n)),
     })),
+
+  pulseNode: (nodeId) =>
+    set((s) => ({ pulse: { nodeId, n: (s.pulse?.n ?? 0) + 1 } })),
 
   bringToFront: (nodeId) =>
     set((s) =>

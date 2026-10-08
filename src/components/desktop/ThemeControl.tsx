@@ -195,10 +195,10 @@ export function ThemeControl({ icon }: ThemeControlProps) {
                                             '1px solid var(--window-border)',
                                     }}
                                 >
-                                    Note: These changes don&apos;t persist
-                                    across sessions. It would be too strange to
-                                    be welcomed by the CGA theme because past
-                                    you accidentally chose it for a laugh.
+                                    Note: These settings are remembered in your
+                                    browser, so past you gets to decide how
+                                    future you is welcomed. Choose the CGA theme
+                                    responsibly.
                                 </p>
                                 <p
                                     className='text-[9px]'

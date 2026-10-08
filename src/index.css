@@ -148,3 +148,21 @@ body,
     user-select: none;
     -webkit-user-select: none;
 }
+
+/* ─────────────────────────────────────────────
+   First-run hint: blinks until the first wire
+   ───────────────────────────────────────────── */
+@keyframes hint-blink {
+    0%,
+    100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.3;
+    }
+}
+
+.hint-blink {
+    animation: hint-blink 1.3s ease-in-out infinite;
+    text-shadow: 0 0 6px var(--accent);
+}

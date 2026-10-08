@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import { useCanvasGestures } from '@/hooks/useCanvasGestures'
 import { CanvasGrid } from './CanvasGrid'
 import { WireOverlay } from './WireOverlay'
+import { TutorialOverlay } from './TutorialOverlay'
 
 interface CanvasProps {
   children: React.ReactNode
@@ -43,6 +44,7 @@ export function Canvas({ children }: CanvasProps) {
       >
         {/* Wire SVG lives inside content so its coords match node positions */}
         <WireOverlay />
+        <TutorialOverlay />
         {children}
       </div>
     </div>
