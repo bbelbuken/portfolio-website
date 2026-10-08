@@ -32,7 +32,7 @@ export const THEMES: ThemeDefinition[] = [
         label: 'CGA',
         vars: {
             '--bg': '#0a0018',
-            '--bg-pattern': '#00fff1',
+            '--bg-pattern': '#13303d',
             '--window-bg': '#0a0018',
             '--window-border': '#ff00ff',
             '--window-shadow': '4px 4px 0px 0px #ff00ff',
@@ -59,7 +59,7 @@ export const THEMES: ThemeDefinition[] = [
         label: 'DOS',
         vars: {
             '--bg': '#0000aa',
-            '--bg-pattern': '#3133cc',
+            '--bg-pattern': '#5457e6',
             '--window-bg': '#0000aa',
             '--window-border': '#aaaaaa',
             '--window-shadow': '4px 4px 0px 0px #000066',
@@ -86,7 +86,7 @@ export const THEMES: ThemeDefinition[] = [
         label: 'Term',
         vars: {
             '--bg': '#0a140a',
-            '--bg-pattern': '#00bb33',
+            '--bg-pattern': '#0f3d1c',
             '--window-bg': '#081008',
             '--window-border': '#00ff41',
             '--window-shadow': '4px 4px 0px 0px #00ff41',

@@ -36,7 +36,9 @@ export function ThemeControl({ icon }: ThemeControlProps) {
                 style={{
                     width: 22,
                     height: 22,
-                    color: 'var(--text-secondary)',
+                    color: controlOpen
+                        ? 'var(--button-active-text)'
+                        : 'var(--text-primary)',
                     border: '1.5px solid var(--window-border)',
                     background: controlOpen
                         ? 'var(--accent)'

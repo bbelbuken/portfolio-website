@@ -1,6 +1,12 @@
 import { create } from 'zustand'
 import type { NodeData, Wire, DraftWire, Port } from '@/types'
-import { INITIAL_NODES, INITIAL_WIRES, childrenOf, visibleNodeIds } from '@/lib/graph'
+import {
+  INITIAL_NODES,
+  INITIAL_WIRES,
+  childrenOf,
+  createInitialNodes,
+  visibleNodeIds,
+} from '@/lib/graph'
 
 interface GraphStore {
   nodes: NodeData[]
@@ -63,7 +69,7 @@ function settleGraph(
 }
 
 export const useGraphStore = create<GraphStore>((set, get) => ({
-  nodes: INITIAL_NODES,
+  nodes: createInitialNodes(),
   wires: INITIAL_WIRES,
   draftWire: null,
   wireDropTarget: null,

@@ -128,6 +128,36 @@ export const INITIAL_NODES: NodeData[] = [
 
 export const INITIAL_WIRES: Wire[] = []
 
+/** Below this width the wide desktop layout no longer fits on screen */
+export const MOBILE_BREAKPOINT = 768
+
+/** Single column, top to bottom, so nothing starts off screen on a phone */
+const MOBILE_LAYOUT: Record<string, { x: number; y: number }> = {
+  about: { x: 12, y: 16 },
+  // the two branches sit together right under about.md …
+  'code-branch': { x: 12, y: 350 },
+  'audio-branch': { x: 12, y: 410 },
+  // … and everything they reveal stacks below them
+  projects: { x: 12, y: 480 },
+  experience: { x: 12, y: 545 },
+  contact: { x: 12, y: 610 },
+  albums: { x: 12, y: 675 },
+  remixes: { x: 12, y: 740 },
+  ads: { x: 12, y: 805 },
+}
+
+/** Initial nodes, laid out for the current viewport width. */
+export function createInitialNodes(): NodeData[] {
+  const narrow =
+    typeof window !== 'undefined' && window.innerWidth < MOBILE_BREAKPOINT
+  if (!narrow) return INITIAL_NODES
+
+  return INITIAL_NODES.map((node) => {
+    const pos = MOBILE_LAYOUT[node.id]
+    return pos ? { ...node, x: pos.x, y: pos.y } : node
+  })
+}
+
 /**
  * A node is on screen only once its parent is connected — so the canvas starts
  * with about.md plus the two branches, and each branch reveals its own children.

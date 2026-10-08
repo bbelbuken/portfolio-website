@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { useCanvasGestures } from '@/hooks/useCanvasGestures'
 import { CanvasGrid } from './CanvasGrid'
 import { WireOverlay } from './WireOverlay'
@@ -10,9 +10,15 @@ interface CanvasProps {
 export function Canvas({ children }: CanvasProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   // useGesture with target option auto-binds and returns void; contentRef is the transformed div
-  const { contentRef } = useCanvasGestures(
+  const { contentRef, fitToView } = useCanvasGestures(
     containerRef as React.RefObject<HTMLElement | null>,
   )
+
+  // Frame the starting nodes once the first paint has measured them
+  useEffect(() => {
+    const id = requestAnimationFrame(fitToView)
+    return () => cancelAnimationFrame(id)
+  }, [fitToView])
 
   return (
     <div
