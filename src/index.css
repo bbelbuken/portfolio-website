@@ -222,3 +222,43 @@ body,
         animation: none;
     }
 }
+
+/* ─────────────────────────────────────────────
+   Settings button: lifts like a retro key and
+   the gear ticks round one tooth on hover
+   ───────────────────────────────────────────── */
+.gear-btn {
+    transition:
+        transform 0.15s ease-out,
+        box-shadow 0.15s ease-out;
+}
+
+.gear-btn:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 2px 2px 0 var(--window-border);
+}
+
+.gear-btn:active {
+    transform: translate(1px, 1px);
+    box-shadow: none;
+}
+
+.gear-btn .gear-icon {
+    transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.gear-btn:hover .gear-icon {
+    transform: rotate(45deg);
+}
+
+/* Open: the gear stays turned while control.md is up */
+.gear-btn[data-open] .gear-icon {
+    transform: rotate(90deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .gear-btn,
+    .gear-btn .gear-icon {
+        transition: none;
+    }
+}

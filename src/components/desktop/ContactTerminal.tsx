@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useDrag } from '@use-gesture/react';
 import { RetroWindow } from '@/components/ui/RetroWindow';
+import { POP_IN } from '@/lib/motion';
 import { useUiStore } from '@/stores/uiStore';
 
 const EMAIL = 'bbelbuken@gmail.com';
@@ -15,7 +16,9 @@ const LINKS = [
 const COMMAND = '$ ./contact.sh';
 const TYPE_MS = 45; // per character of the command
 const LINE_MS = 160; // between printed lines
-const WIDTH = 340;
+const WIDTH = 320;
+const TOP = 34; // just under the header, like control.md
+const CORNER_GAP = 8;
 
 function prefersReducedMotion() {
     return (
@@ -123,11 +126,11 @@ export function ContactTerminal() {
 
     const [pos, setPos] = useState({ x: 0, y: 0 });
 
-    // Re-centre each time it opens
+    // Opens in the top-right corner each time, mirroring control.md on the left
     useEffect(() => {
         if (!open) return;
         const width = Math.min(WIDTH, window.innerWidth - 32);
-        setPos({ x: Math.max(16, (window.innerWidth - width) / 2), y: 96 });
+        setPos({ x: window.innerWidth - width - CORNER_GAP, y: TOP });
     }, [open]);
 
     useEffect(() => {
@@ -142,7 +145,7 @@ export function ContactTerminal() {
     const bind = useDrag(({ delta: [dx, dy] }) => {
         setPos((p) => ({
             x: Math.min(window.innerWidth - 60, Math.max(-WIDTH + 60, p.x + dx)),
-            y: Math.min(window.innerHeight - 40, Math.max(32, p.y + dy)),
+            y: Math.min(window.innerHeight - 40, Math.max(TOP, p.y + dy)),
         }));
     });
 
@@ -151,16 +154,14 @@ export function ContactTerminal() {
             {open && (
                 <motion.div
                     key='contact-terminal'
-                    initial={{ opacity: 0, scale: 0.92 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.92 }}
-                    transition={{ type: 'spring', stiffness: 380, damping: 26 }}
+                    {...POP_IN}
                     className='fixed'
                     style={{
                         left: pos.x,
                         top: pos.y,
                         width: `min(${WIDTH}px, calc(100vw - 32px))`,
                         zIndex: 35,
+                        transformOrigin: 'top right',
                     }}
                 >
                     <RetroWindow title='contact.sh' onClose={close}>

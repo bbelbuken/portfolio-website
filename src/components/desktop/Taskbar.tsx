@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { ThemeControl } from './ThemeControl';
 import { NavMenu } from './NavMenu';
+import { HEADER_H, NAV_LINK_CLASS } from './headerStyles';
+import { useThemeStore } from '@/stores/themeStore';
 import { useGraphStore } from '@/stores/graphStore';
 import { useUiStore } from '@/stores/uiStore';
 
@@ -45,12 +47,20 @@ export function Taskbar() {
     const pulseNode = useGraphStore((s) => s.pulseNode);
     const bringToFront = useGraphStore((s) => s.bringToFront);
     const toggleContact = useUiStore((s) => s.toggleContact);
+    const setOpenMenu = useUiStore((s) => s.setOpenMenu);
+    const setControlOpen = useThemeStore((s) => s.setControlOpen);
+
+    /** Plain header links close any open dropdown before they act */
+    function closeMenus() {
+        setOpenMenu(null);
+        setControlOpen(false);
+    }
 
     return (
         <header
             className='fixed top-0 inset-x-0 z-40 flex items-center justify-between px-4'
             style={{
-                height: 32,
+                height: HEADER_H,
                 background: 'var(--title-bar-bg)',
                 borderBottom: '2px solid var(--window-border)',
                 fontFamily: '"Fira Code", Consolas, monospace',
@@ -80,13 +90,11 @@ export function Taskbar() {
                 <nav className='flex items-center gap-4'>
                     <a
                         href='#about'
-                        className='text-[11px] hover:underline'
-                        style={{
-                            color: 'var(--text-header)',
-                            textDecoration: 'none',
-                        }}
+                        className={NAV_LINK_CLASS}
+                        style={{ color: 'var(--text-header)' }}
                         onClick={(e) => {
                             e.preventDefault();
+                            closeMenus();
                             // about.md is always open — bounce it instead
                             bringToFront('about');
                             pulseNode('about');
@@ -100,14 +108,11 @@ export function Taskbar() {
 
                     <a
                         href='#contact'
-                        className='text-[11px] hover:underline'
-                        style={{
-                            color: 'var(--text-header)',
-                            textDecoration: 'none',
-                            cursor: 'pointer',
-                        }}
+                        className={NAV_LINK_CLASS}
+                        style={{ color: 'var(--text-header)' }}
                         onClick={(e) => {
                             e.preventDefault();
+                            closeMenus();
                             // contact.sh floats outside the graph, so it never
                             // touches the tutorial
                             toggleContact();

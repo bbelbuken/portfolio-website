@@ -11,15 +11,15 @@ interface CanvasProps {
 export function Canvas({ children }: CanvasProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   // useGesture with target option auto-binds and returns void; contentRef is the transformed div
-  const { contentRef, fitToView } = useCanvasGestures(
+  const { contentRef, introToView } = useCanvasGestures(
     containerRef as React.RefObject<HTMLElement | null>,
   )
 
-  // Frame the starting nodes once the first paint has measured them
+  // Swoop in on the starting nodes once the first paint has measured them
   useEffect(() => {
-    const id = requestAnimationFrame(fitToView)
+    const id = requestAnimationFrame(introToView)
     return () => cancelAnimationFrame(id)
-  }, [fitToView])
+  }, [introToView])
 
   return (
     <div

@@ -1,12 +1,49 @@
 import type { NodeData, Wire } from '@/types'
 
-export const INITIAL_NODES: NodeData[] = [
+/*
+ * Top-down tree: about.md on top, code and audio side by side under it, and
+ * each branch's children in a column under that branch. The canvas scales to
+ * the screen, so one layout looks the same everywhere.
+ */
+const ABOUT_W = 340
+const ABOUT_H = 364
+const BRANCH_H = 230 // open branch window
+const SOCKET_W = 120 // closed branch socket
+const ROW_GAP = 70
+const BRANCH_GAP = 120
+const CHILD_INDENT = 24
+const CHILD_STEP = 56
+
+const BRANCH_Y = ABOUT_H + ROW_GAP
+// The closed sockets sit mirror-image around about.md's centre line
+const CODE_X = ABOUT_W / 2 - BRANCH_GAP / 2 - SOCKET_W
+const AUDIO_X = ABOUT_W / 2 + BRANCH_GAP / 2
+const CHILD_Y = BRANCH_Y + BRANCH_H + ROW_GAP / 2
+
+function child(branchX: number, i: number) {
+  return { x: branchX + CHILD_INDENT, y: CHILD_Y + i * CHILD_STEP }
+}
+
+const LAYOUT: Record<string, { x: number; y: number }> = {
+  about: { x: 0, y: 0 },
+  'code-branch': { x: CODE_X, y: BRANCH_Y },
+  'audio-branch': { x: AUDIO_X, y: BRANCH_Y },
+  projects: child(CODE_X, 0),
+  experience: child(CODE_X, 1),
+  education: child(CODE_X, 2),
+  stack: child(CODE_X, 3),
+  albums: child(AUDIO_X, 0),
+  remixes: child(AUDIO_X, 1),
+  ads: child(AUDIO_X, 2),
+}
+
+const NODES: NodeData[] = [
   {
     id: 'about',
     type: 'about',
     label: 'about.md',
-    x: 160,
-    y: 120,
+    x: 0,
+    y: 0,
     state: 'connected',
     alwaysExpanded: true,
     ports: [
@@ -20,8 +57,8 @@ export const INITIAL_NODES: NodeData[] = [
     label: 'code.branch',
     parentId: 'about',
     parentPortId: 'about-out-code',
-    x: 520,
-    y: 60,
+    x: 0,
+    y: 0,
     state: 'idle',
     ports: [
       { id: 'code-in', nodeId: 'code-branch', type: 'input' },
@@ -37,8 +74,8 @@ export const INITIAL_NODES: NodeData[] = [
     label: 'audio.branch',
     parentId: 'about',
     parentPortId: 'about-out-audio',
-    x: 520,
-    y: 320,
+    x: 0,
+    y: 0,
     state: 'idle',
     ports: [
       { id: 'audio-in', nodeId: 'audio-branch', type: 'input' },
@@ -53,8 +90,8 @@ export const INITIAL_NODES: NodeData[] = [
     label: 'projects.code',
     parentId: 'code-branch',
     parentPortId: 'code-out-projects',
-    x: 880,
-    y: -40,
+    x: 0,
+    y: 0,
     state: 'idle',
     ports: [
       { id: 'projects-in', nodeId: 'projects', type: 'input' },
@@ -66,8 +103,8 @@ export const INITIAL_NODES: NodeData[] = [
     label: 'experience.log',
     parentId: 'code-branch',
     parentPortId: 'code-out-exp',
-    x: 880,
-    y: 20,
+    x: 0,
+    y: 0,
     state: 'idle',
     ports: [
       { id: 'experience-in', nodeId: 'experience', type: 'input' },
@@ -79,8 +116,8 @@ export const INITIAL_NODES: NodeData[] = [
     label: 'education.txt',
     parentId: 'code-branch',
     parentPortId: 'code-out-edu',
-    x: 880,
-    y: 80,
+    x: 0,
+    y: 0,
     state: 'idle',
     ports: [
       { id: 'education-in', nodeId: 'education', type: 'input' },
@@ -92,8 +129,8 @@ export const INITIAL_NODES: NodeData[] = [
     label: 'stack.json',
     parentId: 'code-branch',
     parentPortId: 'code-out-stack',
-    x: 880,
-    y: 140,
+    x: 0,
+    y: 0,
     state: 'idle',
     ports: [
       { id: 'stack-in', nodeId: 'stack', type: 'input' },
@@ -105,8 +142,8 @@ export const INITIAL_NODES: NodeData[] = [
     label: 'albums.wav',
     parentId: 'audio-branch',
     parentPortId: 'audio-out-albums',
-    x: 880,
-    y: 280,
+    x: 0,
+    y: 0,
     state: 'idle',
     ports: [
       { id: 'albums-in', nodeId: 'albums', type: 'input' },
@@ -118,8 +155,8 @@ export const INITIAL_NODES: NodeData[] = [
     label: 'remixes.flac',
     parentId: 'audio-branch',
     parentPortId: 'audio-out-remixes',
-    x: 880,
-    y: 400,
+    x: 0,
+    y: 0,
     state: 'idle',
     ports: [
       { id: 'remixes-in', nodeId: 'remixes', type: 'input' },
@@ -131,8 +168,8 @@ export const INITIAL_NODES: NodeData[] = [
     label: 'ads.mp4',
     parentId: 'audio-branch',
     parentPortId: 'audio-out-ads',
-    x: 880,
-    y: 520,
+    x: 0,
+    y: 0,
     state: 'idle',
     ports: [
       { id: 'ads-in', nodeId: 'ads', type: 'input' },
@@ -140,37 +177,16 @@ export const INITIAL_NODES: NodeData[] = [
   },
 ]
 
+export const INITIAL_NODES: NodeData[] = NODES.map((node) => ({
+  ...node,
+  ...LAYOUT[node.id],
+}))
+
 export const INITIAL_WIRES: Wire[] = []
 
-/** Below this width the wide desktop layout no longer fits on screen */
-export const MOBILE_BREAKPOINT = 768
-
-/** Single column, top to bottom, so nothing starts off screen on a phone */
-const MOBILE_LAYOUT: Record<string, { x: number; y: number }> = {
-  about: { x: 12, y: 16 },
-  // the two branches sit together right under about.md …
-  'code-branch': { x: 12, y: 350 },
-  'audio-branch': { x: 12, y: 410 },
-  // … and everything they reveal stacks below them
-  projects: { x: 12, y: 480 },
-  experience: { x: 12, y: 545 },
-  education: { x: 12, y: 610 },
-  stack: { x: 12, y: 675 },
-  albums: { x: 12, y: 740 },
-  remixes: { x: 12, y: 805 },
-  ads: { x: 12, y: 870 },
-}
-
-/** Initial nodes, laid out for the current viewport width. */
+/** Initial nodes, placed by LAYOUT. */
 export function createInitialNodes(): NodeData[] {
-  const narrow =
-    typeof window !== 'undefined' && window.innerWidth < MOBILE_BREAKPOINT
-  if (!narrow) return INITIAL_NODES
-
-  return INITIAL_NODES.map((node) => {
-    const pos = MOBILE_LAYOUT[node.id]
-    return pos ? { ...node, x: pos.x, y: pos.y } : node
-  })
+  return INITIAL_NODES
 }
 
 /**

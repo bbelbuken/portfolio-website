@@ -4,8 +4,8 @@ import { useTutorialStore, type TutorialStep } from '@/hooks/useTutorial';
 
 const STEPS: { n: 1 | 2 | 3; label: string }[] = [
     { n: 1, label: 'Pull a wire from about.md' },
-    { n: 2, label: 'Drag a window by its title' },
-    { n: 3, label: 'Scroll or pinch to zoom' },
+    { n: 2, label: 'Drag the background or zoom' },
+    { n: 3, label: 'Drag a window by its title' },
 ];
 
 /** How long the finished bar stays up before it slides away */
@@ -152,7 +152,7 @@ export function TutorialProgress() {
                                 <span className='truncate'>
                                     {current.label}
                                 </span>
-                                {current.n === 3 && <WheelGlyph />}
+                                {current.n === 2 && <WheelGlyph />}
                             </>
                         ) : (
                             <>

@@ -21,11 +21,11 @@ const REST_MS = 700; // pause at the end before looping
 const DRAG_CYCLE_MS = PRESS_MS + SLIDE_MS + REST_MS;
 const DRAG_DISTANCE = 80;
 
-/** Canvas hints for steps 1 and 2; step 3 is ZoomHint, drawn in screen space */
+/** Canvas hints for steps 1 and 3; step 2 is ZoomHint, drawn in screen space */
 export function TutorialOverlay() {
     const step = useTutorialStore((s) => s.step);
     if (step === 1) return <WireHint />;
-    if (step === 2) return <DragHint />;
+    if (step === 3) return <DragHint />;
     return null;
 }
 
@@ -114,8 +114,8 @@ function WireHint() {
 }
 
 /**
- * Step 2: a hand grabs the first connected branch by its title bar and pulls
- * a dashed copy of the window sideways, showing that nodes can be moved.
+ * Step 3: a hand grabs the most recently opened window by its title bar and
+ * pulls a dashed copy of it sideways, showing that windows can be moved.
  */
 function DragHint() {
     const dragTarget = useTutorialStore((s) => s.dragTarget);

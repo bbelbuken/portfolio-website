@@ -13,8 +13,53 @@ const SIZE = { w: 260, h: 220 };
 const START = 12; // fingertip offset from the centre, per axis
 const END = 70;
 
+const HEADER_H = 32;
+const BAR_H = 64; // tutorial progress bar under the header
+const GRID = 24; // spacing of the candidate spots we try
+const MARGIN = 8;
+
 /**
- * Step 3: two hands pinch outward from the middle of the canvas while a
+ * Screen-space centre for the hint: the spot that overlaps the open windows
+ * least, and among equally clear spots, the one nearest the middle.
+ */
+function findEmptySpot(): { x: number; y: number } {
+    const nodes = Array.from(
+        document.querySelectorAll<HTMLElement>('[data-node]'),
+    ).map((el) => el.getBoundingClientRect());
+
+    const minX = MARGIN + SIZE.w / 2;
+    const maxX = window.innerWidth - MARGIN - SIZE.w / 2;
+    const minY = HEADER_H + BAR_H + SIZE.h / 2;
+    const maxY = window.innerHeight - MARGIN - SIZE.h / 2;
+    const midX = window.innerWidth / 2;
+    const midY = (HEADER_H + window.innerHeight) / 2;
+
+    let best = { x: midX, y: midY };
+    let bestScore = Infinity;
+
+    for (let y = minY; y <= Math.max(minY, maxY); y += GRID) {
+        for (let x = minX; x <= Math.max(minX, maxX); x += GRID) {
+            const l = x - SIZE.w / 2;
+            const t = y - SIZE.h / 2;
+            let overlap = 0;
+            for (const r of nodes) {
+                const w = Math.min(l + SIZE.w, r.right) - Math.max(l, r.left);
+                const h = Math.min(t + SIZE.h, r.bottom) - Math.max(t, r.top);
+                if (w > 0 && h > 0) overlap += w * h;
+            }
+            // Any overlap outweighs distance from the middle
+            const score = overlap * 100 + Math.hypot(x - midX, y - midY);
+            if (score < bestScore) {
+                bestScore = score;
+                best = { x, y };
+            }
+        }
+    }
+    return best;
+}
+
+/**
+ * Step 2: two hands pinch outward in an empty part of the screen while a
  * dashed frame grows between their fingertips. Drawn in screen space so the
  * hint itself does not scale while the visitor zooms.
  */
@@ -25,18 +70,37 @@ export function ZoomHint() {
     const leftRef = useRef<SVGGElement>(null);
     const rightRef = useRef<SVGGElement>(null);
     const groupRef = useRef<SVGGElement>(null);
+    const svgRef = useRef<SVGSVGElement>(null);
 
     useEffect(() => {
-        if (step !== 3) return;
+        if (step !== 2) return;
         const reduced = window.matchMedia(
             '(prefers-reduced-motion: reduce)',
         ).matches;
         const cx = SIZE.w / 2;
         const cy = SIZE.h / 2;
         let rafId: number;
+        let cycle = -1;
         const start = performance.now();
 
+        // Windows move and open while the hint loops, so pick the spot again
+        // at the start of every loop
+        function place() {
+            const svg = svgRef.current;
+            if (!svg) return;
+            const spot = findEmptySpot();
+            svg.style.left = `${spot.x}px`;
+            svg.style.top = `${spot.y}px`;
+            svg.style.visibility = 'visible';
+        }
+
         function draw(now: number) {
+            const n = Math.floor((now - start) / CYCLE_MS);
+            if (n !== cycle) {
+                cycle = n;
+                place();
+            }
+
             const t = reduced ? PRESS_MS + SPREAD_MS : (now - start) % CYCLE_MS;
             const pressed = t >= PRESS_MS * 0.6;
             const spread = easeInOut(
@@ -75,17 +139,18 @@ export function ZoomHint() {
         return () => cancelAnimationFrame(rafId);
     }, [step]);
 
-    if (step !== 3) return null;
+    if (step !== 2) return null;
 
     return (
         <svg
+            ref={svgRef}
             aria-hidden
             className='fixed pointer-events-none overflow-visible'
             width={SIZE.w}
             height={SIZE.h}
             style={{
-                left: '50%',
-                top: 'calc(32px + (100vh - 32px) / 2)',
+                // Placed by findEmptySpot on the first frame
+                visibility: 'hidden',
                 transform: 'translate(-50%, -50%)',
                 zIndex: TUTORIAL_Z,
             }}
