@@ -18,18 +18,19 @@ export function AboutNode({ node }: AboutNodeProps) {
       >
         <p>
           <span style={{ color: 'var(--accent)' }}>{'> '}</span>
-          <strong>Your Name</strong>
+          <strong>Batuhan Belbüken</strong>
         </p>
         <p style={{ color: 'var(--text-secondary)' }}>
           I'm a{' '}
           <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>
-            creative developer
+            software developer
           </span>{' '}
-          who builds at the intersection of code and sound. I design interactive
-          experiences, develop web apps, and produce music.
+          and former sound engineer based in Istanbul. I build multi-tenant SaaS,
+          real-time IoT systems, and serverless data pipelines on AWS and Azure.
         </p>
         <p style={{ color: 'var(--text-secondary)' }}>
-          Currently building things I wish existed. Pull a wire and explore.
+          Before code, I spent 8 years designing sound for brands like GAP, Vogue,
+          and Turkcell. Pull a wire and explore.
         </p>
         <div
           className="pt-2 text-[10px] space-y-1"

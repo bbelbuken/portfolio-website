@@ -4,28 +4,16 @@ import { NodeSocket } from './NodeSocket'
 
 const PROJECTS = [
   {
-    name: 'project-alpha',
-    desc: 'Full-stack web application',
-    url: '#',
-    tags: ['React', 'Node'],
-  },
-  {
-    name: 'synth-ui',
-    desc: 'Browser-based modular synth',
-    url: '#',
-    tags: ['WebAudio', 'Canvas'],
-  },
-  {
-    name: 'ml-visualizer',
-    desc: 'Neural network training viz',
-    url: '#',
-    tags: ['Python', 'D3'],
+    name: 'elontweetbot',
+    desc: 'AI crypto trading bot: scores live X posts with Twitter-RoBERTa, fuses sentiment with a 70+ term crypto lexicon into a 0-100 signal, and trades on Binance Testnet with stop-loss, take-profit, and drawdown limits',
+    url: 'https://github.com/bbelbuken/elontweetbot',
+    tags: ['PyTorch', 'Transformers', 'FastAPI', 'Celery', 'Redis', 'Docker'],
   },
   {
     name: 'this-portfolio',
     desc: 'Node-graph portfolio',
-    url: '#',
-    tags: ['React', 'Vite'],
+    url: 'https://github.com/bbelbuken',
+    tags: ['React', 'TypeScript', 'Vite'],
   },
 ]
 
@@ -72,7 +60,7 @@ export function ProjectsNode({ node }: ProjectsNodeProps) {
                 <span style={{ color: 'var(--text-secondary)', fontSize: 10 }}>↗</span>
               </div>
               <p style={{ color: 'var(--text-secondary)', marginTop: 2 }}>{p.desc}</p>
-              <div className="flex gap-1 mt-1">
+              <div className="flex flex-wrap gap-1 mt-1">
                 {p.tags.map((tag) => (
                   <span
                     key={tag}

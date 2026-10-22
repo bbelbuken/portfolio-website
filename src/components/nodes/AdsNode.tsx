@@ -4,13 +4,28 @@ import { NodeSocket } from './NodeSocket'
 
 const VIDEOS = [
   {
-    title: 'Brand Campaign 2024',
-    client: 'Client Name',
+    title: 'Sound Design',
+    client: 'GAP',
     youtubeId: 'dQw4w9WgXcQ', // replace with real YouTube video ID
   },
   {
-    title: 'Fashion Film – Summer',
-    client: 'Label Name',
+    title: 'Sound Design',
+    client: 'Vogue',
+    youtubeId: 'dQw4w9WgXcQ',
+  },
+  {
+    title: 'Sound Design',
+    client: 'Migros',
+    youtubeId: 'dQw4w9WgXcQ',
+  },
+  {
+    title: 'Sound Design',
+    client: 'Turkcell',
+    youtubeId: 'dQw4w9WgXcQ',
+  },
+  {
+    title: 'Restaurant Documentary',
+    client: 'Michelin-starred',
     youtubeId: 'dQw4w9WgXcQ',
   },
 ]

@@ -3,10 +3,9 @@ import { NodeWindow } from './NodeWindow'
 import { NodeSocket } from './NodeSocket'
 
 const LINKS = [
-  { label: 'email', href: 'mailto:hello@yourname.com', value: 'hello@yourname.com' },
-  { label: 'github', href: 'https://github.com/yourname', value: 'github.com/yourname' },
-  { label: 'linkedin', href: 'https://linkedin.com/in/yourname', value: 'linkedin.com/in/yourname' },
-  { label: 'twitter', href: 'https://twitter.com/yourname', value: '@yourname' },
+  { label: 'email', href: 'mailto:bbelbuken@gmail.com', value: 'bbelbuken@gmail.com' },
+  { label: 'github', href: 'https://github.com/bbelbuken', value: 'github.com/bbelbuken' },
+  { label: 'location', href: 'https://maps.google.com/?q=Istanbul,Turkey', value: 'Istanbul, Turkey' },
 ]
 
 interface ContactNodeProps {
