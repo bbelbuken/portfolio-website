@@ -1,21 +1,38 @@
 /**
- * Convert a port element's live viewport position into canvas-local coords.
+ * Convert an element's live viewport box into canvas-local coords.
  * getBoundingClientRect() already includes the CSS transform, so
- * (portCenter - canvasOrigin) / scale gives the correct local coordinate.
+ * (rect - canvasOrigin) / scale gives the correct local coordinate.
  */
-export function portCenter(portId: string): { x: number; y: number } | null {
-    const el = document.querySelector(
-        `[data-port="${portId}"]`,
-    ) as HTMLElement | null;
+function canvasRect(
+    el: HTMLElement | null,
+): { x: number; y: number; width: number; height: number } | null {
     if (!el) return null;
     const canvasContent = document.getElementById('canvas-content');
     if (!canvasContent) return null;
-    const canvasRect = canvasContent.getBoundingClientRect();
-    const portRect = el.getBoundingClientRect();
+    const canvasBox = canvasContent.getBoundingClientRect();
+    const box = el.getBoundingClientRect();
     const scale =
         new DOMMatrix(window.getComputedStyle(canvasContent).transform).a || 1;
     return {
-        x: (portRect.left + portRect.width / 2 - canvasRect.left) / scale,
-        y: (portRect.top + portRect.height / 2 - canvasRect.top) / scale,
+        x: (box.left - canvasBox.left) / scale,
+        y: (box.top - canvasBox.top) / scale,
+        width: box.width / scale,
+        height: box.height / scale,
     };
+}
+
+/** Center of a port, in canvas-local coords. */
+export function portCenter(portId: string): { x: number; y: number } | null {
+    const r = canvasRect(
+        document.querySelector(`[data-port="${portId}"]`) as HTMLElement | null,
+    );
+    if (!r) return null;
+    return { x: r.x + r.width / 2, y: r.y + r.height / 2 };
+}
+
+/** A node's box, in canvas-local coords. */
+export function nodeRect(nodeId: string) {
+    return canvasRect(
+        document.querySelector(`[data-node="${nodeId}"]`) as HTMLElement | null,
+    );
 }

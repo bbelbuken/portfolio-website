@@ -2,6 +2,7 @@ import { useRef, useCallback } from 'react'
 import { useGesture } from '@use-gesture/react'
 import { useGraphStore } from '@/stores/graphStore'
 import { useCanvasStore } from '@/stores/canvasStore'
+import { useTutorialStore } from '@/hooks/useTutorial'
 
 export function useNodeDrag(
   nodeId: string,
@@ -31,6 +32,7 @@ export function useNodeDrag(
         const node = getNodeById(nodeId)
         if (!node) return
         dragStarted.current = true
+        useTutorialStore.getState().markDragged()
         startX.current = node.x
         startY.current = node.y
       },

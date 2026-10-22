@@ -166,3 +166,59 @@ body,
     animation: hint-blink 1.3s ease-in-out infinite;
     text-shadow: 0 0 6px var(--accent);
 }
+
+/* ─────────────────────────────────────────────
+   Tutorial progress: active segment and the
+   scroll-wheel glyph shown on the zoom step
+   ───────────────────────────────────────────── */
+@keyframes segment-pulse {
+    0%,
+    100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.35;
+    }
+}
+
+.segment-pulse {
+    animation: segment-pulse 1.3s ease-in-out infinite;
+}
+
+@keyframes wheel-roll {
+    0% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    70% {
+        transform: translateY(4px);
+        opacity: 0;
+    }
+    100% {
+        transform: translateY(0);
+        opacity: 0;
+    }
+}
+
+.wheel-roll {
+    animation: wheel-roll 1.2s ease-in infinite;
+}
+
+@keyframes caret-blink {
+    50% {
+        opacity: 0;
+    }
+}
+
+.caret-blink {
+    animation: caret-blink 1s steps(1) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hint-blink,
+    .segment-pulse,
+    .wheel-roll,
+    .caret-blink {
+        animation: none;
+    }
+}

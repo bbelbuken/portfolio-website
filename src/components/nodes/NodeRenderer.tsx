@@ -6,7 +6,6 @@ import { CodeBranchNode } from './CodeBranchNode'
 import { AudioBranchNode } from './AudioBranchNode'
 import { ProjectsNode } from './ProjectsNode'
 import { ExperienceNode } from './ExperienceNode'
-import { ContactNode } from './ContactNode'
 import { AlbumsNode } from './AlbumsNode'
 import { RemixesNode } from './RemixesNode'
 import { AdsNode } from './AdsNode'
@@ -29,8 +28,6 @@ function renderNode(node: NodeData) {
       return <ProjectsNode key={node.id} node={node} />
     case 'experience':
       return <ExperienceNode key={node.id} node={node} />
-    case 'contact':
-      return <ContactNode key={node.id} node={node} />
     case 'albums':
       return <AlbumsNode key={node.id} node={node} />
     case 'remixes':

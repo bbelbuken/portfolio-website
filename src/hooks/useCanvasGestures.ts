@@ -1,6 +1,7 @@
 import { useRef, useCallback } from 'react'
 import { useGesture } from '@use-gesture/react'
 import { useCanvasStore } from '@/stores/canvasStore'
+import { useTutorialStore } from '@/hooks/useTutorial'
 
 const MIN_SCALE = 0.25
 const MAX_SCALE = 3
@@ -46,8 +47,10 @@ export function useCanvasGestures(containerRef: React.RefObject<HTMLElement | nu
     }
 
     const pad = 16
+    // Keep the first-run tutorial bar under the header clear of the nodes
+    const top = useTutorialStore.getState().step === 'done' ? 0 : 64
     const viewW = container.clientWidth - pad * 2
-    const viewH = container.clientHeight - pad * 2
+    const viewH = container.clientHeight - pad * 2 - top
     const contentW = maxX - minX
     const contentH = maxY - minY
     if (viewW <= 0 || viewH <= 0 || contentW <= 0 || contentH <= 0) return
@@ -59,7 +62,7 @@ export function useCanvasGestures(containerRef: React.RefObject<HTMLElement | nu
 
     liveScale.current = scale
     liveX.current = pad + (viewW - contentW * scale) / 2 - minX * scale
-    liveY.current = pad + (viewH - contentH * scale) / 2 - minY * scale
+    liveY.current = pad + top + (viewH - contentH * scale) / 2 - minY * scale
     applyTransform()
     setTransform(liveX.current, liveY.current, liveScale.current)
   }, [applyTransform, containerRef, setTransform])
@@ -87,6 +90,7 @@ export function useCanvasGestures(containerRef: React.RefObject<HTMLElement | nu
         liveScale.current = next
         applyTransform()
         setTransform(liveX.current, liveY.current, liveScale.current)
+        useTutorialStore.getState().markZoomed()
       },
       onPinch: ({ offset: [scale], event }) => {
         event.preventDefault()
@@ -96,6 +100,7 @@ export function useCanvasGestures(containerRef: React.RefObject<HTMLElement | nu
       },
       onPinchEnd: () => {
         setTransform(liveX.current, liveY.current, liveScale.current)
+        useTutorialStore.getState().markZoomed()
       },
     },
     {

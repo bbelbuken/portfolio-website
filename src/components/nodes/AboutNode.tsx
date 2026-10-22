@@ -1,14 +1,18 @@
 import type { NodeData } from '@/types';
 import { NodeWindow } from './NodeWindow';
-import { useTutorialActive } from '@/hooks/useTutorial';
+import { useUiStore } from '@/stores/uiStore';
+
+const FUN_FACTS = [
+    'Fenerbahçe basketball, from youth teams to pro',
+    'One year on the Turkish national team',
+];
 
 interface AboutNodeProps {
     node: NodeData;
 }
 
 export function AboutNode({ node }: AboutNodeProps) {
-    // The hints pulse until the first wire is connected
-    const hinting = useTutorialActive();
+    const toggleContact = useUiStore((s) => s.toggleContact);
 
     return (
         <NodeWindow node={node} width={340}>
@@ -42,42 +46,37 @@ export function AboutNode({ node }: AboutNodeProps) {
                     Before code, I spent 8 years designing sound for brands like
                     GAP, Vogue, and Turkcell. Next stop: AI.
                 </p>
+                <p style={{ color: 'var(--text-secondary)' }}>
+                    Want to talk?{' '}
+                    <button
+                        onClick={toggleContact}
+                        onPointerDown={(e) => e.stopPropagation()}
+                        className='hover:underline'
+                        style={{
+                            color: 'var(--accent)',
+                            background: 'transparent',
+                            border: 'none',
+                            padding: 0,
+                            cursor: 'pointer',
+                            fontFamily: 'inherit',
+                        }}
+                    >
+                        $ ./contact.sh
+                    </button>
+                </p>
                 <div
                     className='pt-2 text-[10px] space-y-1'
                     style={{
                         borderTop: '1px solid var(--window-border)',
-                        color: hinting
-                            ? 'var(--accent)'
-                            : 'var(--text-secondary)',
+                        color: 'var(--text-secondary)',
                     }}
                 >
-                    <p>
-                        <span
-                            className={hinting ? 'hint-blink' : undefined}
-                            style={{ color: 'var(--accent)' }}
-                        >
-                            {'→'}
-                        </span>{' '}
-                        Connect a wire to explore
-                    </p>
-                    <p>
-                        <span
-                            className={hinting ? 'hint-blink' : undefined}
-                            style={{ color: 'var(--accent)' }}
-                        >
-                            {'→'}
-                        </span>{' '}
-                        Scroll / pinch to zoom canvas
-                    </p>
-                    <p>
-                        <span
-                            className={hinting ? 'hint-blink' : undefined}
-                            style={{ color: 'var(--accent)' }}
-                        >
-                            {'→'}
-                        </span>{' '}
-                        Drag nodes to rearrange
-                    </p>
+                    {FUN_FACTS.map((fact) => (
+                        <p key={fact}>
+                            <span style={{ color: 'var(--accent)' }}>{'→'}</span>{' '}
+                            {fact}
+                        </p>
+                    ))}
                 </div>
             </div>
         </NodeWindow>

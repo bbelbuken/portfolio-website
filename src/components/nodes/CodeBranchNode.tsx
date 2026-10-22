@@ -16,7 +16,7 @@ export function CodeBranchNode({ node }: CodeBranchNodeProps) {
         style={{ color: 'var(--text-secondary)', fontFamily: '"Fira Code", Consolas, monospace' }}
       >
         <p style={{ color: 'var(--accent)', fontWeight: 600 }}>{'> CODE'}</p>
-        <p>Connect the ports to explore projects, experience, education, stack, and contact.</p>
+        <p>Connect the ports to explore projects, experience, education, and stack.</p>
         <div className="space-y-1 pt-2" style={{ borderTop: '1px solid var(--window-border)' }}>
           <p>
             <span style={{ color: 'var(--accent)' }}>{'/'}</span> projects.code
@@ -29,9 +29,6 @@ export function CodeBranchNode({ node }: CodeBranchNodeProps) {
           </p>
           <p>
             <span style={{ color: 'var(--accent)' }}>{'/'}</span> stack.json
-          </p>
-          <p>
-            <span style={{ color: 'var(--accent)' }}>{'/'}</span> contact.sh
           </p>
         </div>
       </div>

@@ -29,7 +29,6 @@ export const INITIAL_NODES: NodeData[] = [
       { id: 'code-out-exp', nodeId: 'code-branch', type: 'output', label: 'experience' },
       { id: 'code-out-edu', nodeId: 'code-branch', type: 'output', label: 'education' },
       { id: 'code-out-stack', nodeId: 'code-branch', type: 'output', label: 'stack' },
-      { id: 'code-out-contact', nodeId: 'code-branch', type: 'output', label: 'contact' },
     ],
   },
   {
@@ -101,19 +100,6 @@ export const INITIAL_NODES: NodeData[] = [
     ],
   },
   {
-    id: 'contact',
-    type: 'contact',
-    label: 'contact.sh',
-    parentId: 'code-branch',
-    parentPortId: 'code-out-contact',
-    x: 880,
-    y: 200,
-    state: 'idle',
-    ports: [
-      { id: 'contact-in', nodeId: 'contact', type: 'input' },
-    ],
-  },
-  {
     id: 'albums',
     type: 'albums',
     label: 'albums.wav',
@@ -170,10 +156,9 @@ const MOBILE_LAYOUT: Record<string, { x: number; y: number }> = {
   experience: { x: 12, y: 545 },
   education: { x: 12, y: 610 },
   stack: { x: 12, y: 675 },
-  contact: { x: 12, y: 740 },
-  albums: { x: 12, y: 805 },
-  remixes: { x: 12, y: 870 },
-  ads: { x: 12, y: 935 },
+  albums: { x: 12, y: 740 },
+  remixes: { x: 12, y: 805 },
+  ads: { x: 12, y: 870 },
 }
 
 /** Initial nodes, laid out for the current viewport width. */

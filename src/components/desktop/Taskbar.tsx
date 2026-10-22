@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { ThemeControl } from './ThemeControl';
 import { NavMenu } from './NavMenu';
 import { useGraphStore } from '@/stores/graphStore';
+import { useUiStore } from '@/stores/uiStore';
 
 /** Plain links; 'code' and 'audio' are rendered as NavMenu dropdowns instead. */
 const NAV_LINKS = [
@@ -41,13 +42,9 @@ function Clock() {
 }
 
 export function Taskbar() {
-    const nodes = useGraphStore((s) => s.nodes);
-    const openNode = useGraphStore((s) => s.openNode);
     const pulseNode = useGraphStore((s) => s.pulseNode);
     const bringToFront = useGraphStore((s) => s.bringToFront);
-    const closeNode = useGraphStore((s) => s.closeNode);
-    const contactOpen =
-        nodes.find((n) => n.id === 'contact')?.state === 'connected';
+    const toggleContact = useUiStore((s) => s.toggleContact);
 
     return (
         <header
@@ -111,10 +108,9 @@ export function Taskbar() {
                         }}
                         onClick={(e) => {
                             e.preventDefault();
-                            // contact.sh hangs off code.branch — openNode wires
-                            // up the branch first if it is still closed
-                            if (contactOpen) closeNode('contact');
-                            else openNode('contact');
+                            // contact.sh floats outside the graph, so it never
+                            // touches the tutorial
+                            toggleContact();
                         }}
                     >
                         {NAV_LINKS[1].label}
