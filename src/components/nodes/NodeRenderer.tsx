@@ -10,6 +10,8 @@ import { ContactNode } from './ContactNode'
 import { AlbumsNode } from './AlbumsNode'
 import { RemixesNode } from './RemixesNode'
 import { AdsNode } from './AdsNode'
+import { EducationNode } from './EducationNode'
+import { StackNode } from './StackNode'
 
 interface NodeRendererProps {
   nodes: NodeData[]
@@ -35,6 +37,10 @@ function renderNode(node: NodeData) {
       return <RemixesNode key={node.id} node={node} />
     case 'ads':
       return <AdsNode key={node.id} node={node} />
+    case 'education':
+      return <EducationNode key={node.id} node={node} />
+    case 'stack':
+      return <StackNode key={node.id} node={node} />
     default:
       return null
   }

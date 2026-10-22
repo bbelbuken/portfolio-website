@@ -27,7 +27,7 @@ export interface Port {
 
 export interface NodeData {
   id: string
-  type: 'about' | 'code-branch' | 'audio-branch' | 'projects' | 'experience' | 'contact' | 'albums' | 'remixes' | 'ads'
+  type: 'about' | 'code-branch' | 'audio-branch' | 'projects' | 'experience' | 'contact' | 'albums' | 'remixes' | 'ads' | 'education' | 'stack'
   label: string
   x: number
   y: number

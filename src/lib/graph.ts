@@ -27,6 +27,8 @@ export const INITIAL_NODES: NodeData[] = [
       { id: 'code-in', nodeId: 'code-branch', type: 'input' },
       { id: 'code-out-projects', nodeId: 'code-branch', type: 'output', label: 'projects' },
       { id: 'code-out-exp', nodeId: 'code-branch', type: 'output', label: 'experience' },
+      { id: 'code-out-edu', nodeId: 'code-branch', type: 'output', label: 'education' },
+      { id: 'code-out-stack', nodeId: 'code-branch', type: 'output', label: 'stack' },
       { id: 'code-out-contact', nodeId: 'code-branch', type: 'output', label: 'contact' },
     ],
   },
@@ -66,10 +68,36 @@ export const INITIAL_NODES: NodeData[] = [
     parentId: 'code-branch',
     parentPortId: 'code-out-exp',
     x: 880,
-    y: 100,
+    y: 20,
     state: 'idle',
     ports: [
       { id: 'experience-in', nodeId: 'experience', type: 'input' },
+    ],
+  },
+  {
+    id: 'education',
+    type: 'education',
+    label: 'education.txt',
+    parentId: 'code-branch',
+    parentPortId: 'code-out-edu',
+    x: 880,
+    y: 80,
+    state: 'idle',
+    ports: [
+      { id: 'education-in', nodeId: 'education', type: 'input' },
+    ],
+  },
+  {
+    id: 'stack',
+    type: 'stack',
+    label: 'stack.json',
+    parentId: 'code-branch',
+    parentPortId: 'code-out-stack',
+    x: 880,
+    y: 140,
+    state: 'idle',
+    ports: [
+      { id: 'stack-in', nodeId: 'stack', type: 'input' },
     ],
   },
   {
@@ -79,7 +107,7 @@ export const INITIAL_NODES: NodeData[] = [
     parentId: 'code-branch',
     parentPortId: 'code-out-contact',
     x: 880,
-    y: 220,
+    y: 200,
     state: 'idle',
     ports: [
       { id: 'contact-in', nodeId: 'contact', type: 'input' },
@@ -140,10 +168,12 @@ const MOBILE_LAYOUT: Record<string, { x: number; y: number }> = {
   // … and everything they reveal stacks below them
   projects: { x: 12, y: 480 },
   experience: { x: 12, y: 545 },
-  contact: { x: 12, y: 610 },
-  albums: { x: 12, y: 675 },
-  remixes: { x: 12, y: 740 },
-  ads: { x: 12, y: 805 },
+  education: { x: 12, y: 610 },
+  stack: { x: 12, y: 675 },
+  contact: { x: 12, y: 740 },
+  albums: { x: 12, y: 805 },
+  remixes: { x: 12, y: 870 },
+  ads: { x: 12, y: 935 },
 }
 
 /** Initial nodes, laid out for the current viewport width. */

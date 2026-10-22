@@ -11,6 +11,11 @@ const EXPERIENCE = [
       'Serverless analytics platform on AWS for 100+ users tracking 5 social networks',
       'Multi-stage AWS CDK (TypeScript) ETL: EventBridge, Lambda, S3, Aurora PostgreSQL',
       'Saved ~$75/mo in NAT Gateway fees via RDS Data API and a scale-to-zero database',
+      'Collected Instagram, Facebook, X, TikTok, and YouTube metrics via Bright Data into one PostgreSQL schema',
+      'Met the weekly data SLA with 4-hour retries, stale-data carry-forward, and a truncation detector',
+      'Served dashboard data as static JSON on S3 + CloudFront, so traffic never hits the database',
+      'German-language React dashboard with rankings, peer benchmarks, time-series charts, and CSV export',
+      'SQS dead-letter queues, CloudWatch alarms with SNS alerts, and 120+ automated tests',
     ],
   },
   {
@@ -33,37 +38,19 @@ const EXPERIENCE = [
     company: 'Freelance',
     period: 'Jun 2017 – Apr 2025 · Istanbul',
     notes: [
-      'Sound design for GAP, Vogue, Migros, and Turkcell',
-      'Sound for a Michelin-starred restaurant documentary',
+      'Custom brand soundscapes for GAP, Vogue, Kiğılı, Migros, and Turkcell campaigns',
+      'Mixed and mastered the documentary of Orfoz, a Michelin-starred restaurant in Bodrum',
+      'Mixing and mastering for local artists around Kadıköy',
     ],
   },
   {
     role: 'IT and Networking Intern',
     company: 'Migros',
     period: 'Nov 2015 – Jan 2016 · Istanbul',
-    notes: ['Secured cloud systems and internal network infrastructure during cybersecurity assessments'],
-  },
-]
-
-const EDUCATION = {
-  school: 'Bahçeşehir University',
-  degree: 'B.Sc. Computer Engineering',
-  period: 'Jun 2016',
-}
-
-const SKILLS = [
-  { label: 'lang', items: ['TypeScript', 'JavaScript', 'Python', 'SQL'] },
-  {
-    label: 'frameworks',
-    items: ['Node.js', 'Express', 'FastAPI', 'Celery', 'Socket.IO', 'React', 'Next.js', 'PyTorch', 'HF Transformers'],
-  },
-  {
-    label: 'cloud',
-    items: ['AWS CDK', 'Lambda', 'Aurora', 'S3', 'EventBridge', 'Azure Functions', 'Service Bus', 'App Service'],
-  },
-  {
-    label: 'data/tools',
-    items: ['MongoDB', 'PostgreSQL', 'Redis', 'Git', 'GitHub Actions', 'Docker', 'Stripe', 'FFmpeg'],
+    notes: [
+      'Worked on the cloud systems and internal network infrastructure',
+      'Supported the cybersecurity assessment, software assurance, and process development programs',
+    ],
   },
 ]
 
@@ -106,41 +93,6 @@ export function ExperienceNode({ node }: ExperienceNodeProps) {
           </div>
         ))}
 
-        <p className="text-[10px] uppercase tracking-widest pt-2" style={{ color: 'var(--text-secondary)', borderTop: '1px solid var(--window-border)' }}>
-          // education
-        </p>
-        <div className="relative pl-4" style={{ borderLeft: '2px solid var(--accent)' }}>
-          <p style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{EDUCATION.degree}</p>
-          <p style={{ color: 'var(--accent)' }}>{EDUCATION.school}</p>
-          <p className="text-[10px]" style={{ color: 'var(--text-secondary)' }}>
-            {EDUCATION.period}
-          </p>
-        </div>
-
-        <p className="text-[10px] uppercase tracking-widest pt-2" style={{ color: 'var(--text-secondary)', borderTop: '1px solid var(--window-border)' }}>
-          // stack
-        </p>
-        <div className="space-y-2">
-          {SKILLS.map((s) => (
-            <div key={s.label}>
-              <p className="text-[10px]" style={{ color: 'var(--accent)' }}>{s.label}</p>
-              <div className="flex flex-wrap gap-1 mt-0.5">
-                {s.items.map((item) => (
-                  <span
-                    key={item}
-                    className="text-[9px] px-1"
-                    style={{
-                      border: '1px solid var(--window-border)',
-                      color: 'var(--text-secondary)',
-                    }}
-                  >
-                    {item}
-                  </span>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
       </div>
     </NodeWindow>
   )

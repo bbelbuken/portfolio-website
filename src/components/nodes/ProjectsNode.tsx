@@ -5,9 +5,9 @@ import { NodeSocket } from './NodeSocket'
 const PROJECTS = [
   {
     name: 'elontweetbot',
-    desc: 'AI crypto trading bot: scores live X posts with Twitter-RoBERTa, fuses sentiment with a 70+ term crypto lexicon into a 0-100 signal, and trades on Binance Testnet with stop-loss, take-profit, and drawdown limits',
+    desc: 'AI crypto trading bot: scores live X posts with Twitter-RoBERTa, fuses sentiment with a 70+ term crypto lexicon into a 0-100 signal, and trades on Binance Testnet with stop-loss, take-profit, and drawdown limits. Next.js dashboard with P&L charts, monitored with Prometheus, Grafana, and Loki, backed by 59 pytest tests.',
     url: 'https://github.com/bbelbuken/elontweetbot',
-    tags: ['PyTorch', 'Transformers', 'FastAPI', 'Celery', 'Redis', 'Docker'],
+    tags: ['PyTorch', 'Transformers', 'NLP', 'FastAPI', 'Celery', 'Redis', 'PostgreSQL', 'Next.js', 'Docker'],
   },
   {
     name: 'this-portfolio',
