@@ -32,9 +32,10 @@ const LAYOUT: Record<string, { x: number; y: number }> = {
   experience: child(CODE_X, 1),
   education: child(CODE_X, 2),
   stack: child(CODE_X, 3),
-  albums: child(AUDIO_X, 0),
-  remixes: child(AUDIO_X, 1),
-  ads: child(AUDIO_X, 2),
+  tracks: child(AUDIO_X, 0),
+  ads: child(AUDIO_X, 1),
+  fashion: child(AUDIO_X, 2),
+  documentary: child(AUDIO_X, 3),
 }
 
 const NODES: NodeData[] = [
@@ -79,9 +80,10 @@ const NODES: NodeData[] = [
     state: 'idle',
     ports: [
       { id: 'audio-in', nodeId: 'audio-branch', type: 'input' },
-      { id: 'audio-out-albums', nodeId: 'audio-branch', type: 'output', label: 'albums' },
-      { id: 'audio-out-remixes', nodeId: 'audio-branch', type: 'output', label: 'remixes' },
-      { id: 'audio-out-ads', nodeId: 'audio-branch', type: 'output', label: 'ads/video' },
+      { id: 'audio-out-tracks', nodeId: 'audio-branch', type: 'output', label: 'tracks' },
+      { id: 'audio-out-ads', nodeId: 'audio-branch', type: 'output', label: 'ads' },
+      { id: 'audio-out-fashion', nodeId: 'audio-branch', type: 'output', label: 'fashion' },
+      { id: 'audio-out-documentary', nodeId: 'audio-branch', type: 'output', label: 'documentary' },
     ],
   },
   {
@@ -137,29 +139,16 @@ const NODES: NodeData[] = [
     ],
   },
   {
-    id: 'albums',
-    type: 'albums',
-    label: 'albums.wav',
+    id: 'tracks',
+    type: 'tracks',
+    label: 'tracks.wav',
     parentId: 'audio-branch',
-    parentPortId: 'audio-out-albums',
+    parentPortId: 'audio-out-tracks',
     x: 0,
     y: 0,
     state: 'idle',
     ports: [
-      { id: 'albums-in', nodeId: 'albums', type: 'input' },
-    ],
-  },
-  {
-    id: 'remixes',
-    type: 'remixes',
-    label: 'remixes.flac',
-    parentId: 'audio-branch',
-    parentPortId: 'audio-out-remixes',
-    x: 0,
-    y: 0,
-    state: 'idle',
-    ports: [
-      { id: 'remixes-in', nodeId: 'remixes', type: 'input' },
+      { id: 'tracks-in', nodeId: 'tracks', type: 'input' },
     ],
   },
   {
@@ -173,6 +162,32 @@ const NODES: NodeData[] = [
     state: 'idle',
     ports: [
       { id: 'ads-in', nodeId: 'ads', type: 'input' },
+    ],
+  },
+  {
+    id: 'fashion',
+    type: 'fashion',
+    label: 'fashion.mp4',
+    parentId: 'audio-branch',
+    parentPortId: 'audio-out-fashion',
+    x: 0,
+    y: 0,
+    state: 'idle',
+    ports: [
+      { id: 'fashion-in', nodeId: 'fashion', type: 'input' },
+    ],
+  },
+  {
+    id: 'documentary',
+    type: 'documentary',
+    label: 'documentary.mp4',
+    parentId: 'audio-branch',
+    parentPortId: 'audio-out-documentary',
+    x: 0,
+    y: 0,
+    state: 'idle',
+    ports: [
+      { id: 'documentary-in', nodeId: 'documentary', type: 'input' },
     ],
   },
 ]

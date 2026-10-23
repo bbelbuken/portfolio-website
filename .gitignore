@@ -1,5 +1,7 @@
 node_modules/
 dist/
+# TypeScript build cache, rewritten on every `tsc -b`
+*.tsbuildinfo
 build/
 .turbo/
 

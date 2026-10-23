@@ -16,16 +16,19 @@ export function AudioBranchNode({ node }: AudioBranchNodeProps) {
         style={{ color: 'var(--text-secondary)', fontFamily: '"Fira Code", Consolas, monospace' }}
       >
         <p style={{ color: 'var(--accent)', fontWeight: 600 }}>🎛️ AUDIO</p>
-        <p>Patch into albums, remixes, or ads/fashion videos.</p>
+        <p>Patch into tracks, ads, fashion films, or documentaries.</p>
         <div className="space-y-1 pt-2" style={{ borderTop: '1px solid var(--window-border)' }}>
           <p>
-            <span style={{ color: 'var(--accent)' }}>{'♬'}</span> albums.wav
-          </p>
-          <p>
-            <span style={{ color: 'var(--accent)' }}>{'♬'}</span> remixes.flac
+            <span style={{ color: 'var(--accent)' }}>{'♬'}</span> tracks.wav
           </p>
           <p>
             <span style={{ color: 'var(--accent)' }}>{'▶'}</span> ads.mp4
+          </p>
+          <p>
+            <span style={{ color: 'var(--accent)' }}>{'▶'}</span> fashion.mp4
+          </p>
+          <p>
+            <span style={{ color: 'var(--accent)' }}>{'▶'}</span> documentary.mp4
           </p>
         </div>
       </div>

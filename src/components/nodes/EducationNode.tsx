@@ -23,9 +23,6 @@ export function EducationNode({ node }: EducationNodeProps) {
         className="space-y-4 text-[11px]"
         style={{ fontFamily: '"Fira Code", Consolas, monospace' }}
       >
-        <p className="text-[10px] uppercase tracking-widest" style={{ color: 'var(--text-secondary)' }}>
-          // education.txt
-        </p>
         {EDUCATION.map((e) => (
           <div key={e.school} className="relative pl-4" style={{ borderLeft: '2px solid var(--accent)' }}>
             <p style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{e.degree}</p>

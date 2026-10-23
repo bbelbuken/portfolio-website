@@ -6,9 +6,8 @@ import { CodeBranchNode } from './CodeBranchNode'
 import { AudioBranchNode } from './AudioBranchNode'
 import { ProjectsNode } from './ProjectsNode'
 import { ExperienceNode } from './ExperienceNode'
-import { AlbumsNode } from './AlbumsNode'
-import { RemixesNode } from './RemixesNode'
-import { AdsNode } from './AdsNode'
+import { TracksNode } from './TracksNode'
+import { VideoListNode } from './VideoListNode'
 import { EducationNode } from './EducationNode'
 import { StackNode } from './StackNode'
 
@@ -28,12 +27,14 @@ function renderNode(node: NodeData) {
       return <ProjectsNode key={node.id} node={node} />
     case 'experience':
       return <ExperienceNode key={node.id} node={node} />
-    case 'albums':
-      return <AlbumsNode key={node.id} node={node} />
-    case 'remixes':
-      return <RemixesNode key={node.id} node={node} />
+    case 'tracks':
+      return <TracksNode key={node.id} node={node} />
     case 'ads':
-      return <AdsNode key={node.id} node={node} />
+      return <VideoListNode key={node.id} node={node} category="ads" />
+    case 'fashion':
+      return <VideoListNode key={node.id} node={node} category="fashion" />
+    case 'documentary':
+      return <VideoListNode key={node.id} node={node} category="documentary" />
     case 'education':
       return <EducationNode key={node.id} node={node} />
     case 'stack':

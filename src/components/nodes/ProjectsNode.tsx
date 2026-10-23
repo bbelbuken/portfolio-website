@@ -30,9 +30,6 @@ export function ProjectsNode({ node }: ProjectsNodeProps) {
         className="space-y-2 text-[11px]"
         style={{ fontFamily: '"Fira Code", Consolas, monospace' }}
       >
-        <p className="text-[10px] uppercase tracking-widest mb-3" style={{ color: 'var(--text-secondary)' }}>
-          // projects
-        </p>
         {PROJECTS.map((p) => (
           <a
             key={p.name}

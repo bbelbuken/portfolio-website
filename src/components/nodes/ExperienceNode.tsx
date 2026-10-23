@@ -67,9 +67,6 @@ export function ExperienceNode({ node }: ExperienceNodeProps) {
         className="space-y-4 text-[11px]"
         style={{ fontFamily: '"Fira Code", Consolas, monospace' }}
       >
-        <p className="text-[10px] uppercase tracking-widest" style={{ color: 'var(--text-secondary)' }}>
-          // experience.log
-        </p>
         {EXPERIENCE.map((e, i) => (
           <div
             key={i}

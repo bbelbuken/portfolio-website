@@ -1,0 +1,23 @@
+[
+  {
+    "kind": "album",
+    "title": "Swamped",
+    "year": "2023",
+    "spotifyUrl": "https://open.spotify.com/album/01tOYrZKTythbj4KA3LEh6",
+    "cover": "/covers/swamped.jpg"
+  },
+  {
+    "kind": "remix",
+    "title": "Sleeping on Snow - Belbüken Remix",
+    "year": "2022",
+    "spotifyUrl": "https://open.spotify.com/track/3ulmMIhvjeKE2HwQbOxxAd",
+    "cover": "/covers/sleeping-on-snow-belbuken-remix.jpg"
+  },
+  {
+    "kind": "remix",
+    "title": "Long Time Ago - Belbüken Remix",
+    "year": "2022",
+    "spotifyUrl": "https://open.spotify.com/track/0t4cqW5N8IMuZJnn9vp815",
+    "cover": "/covers/long-time-ago-belbuken-remix.jpg"
+  }
+]
