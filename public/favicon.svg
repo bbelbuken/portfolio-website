@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- A tiny node window: hard shadow, striped title bar, rose output port -->
+  <rect x="5" y="5" width="22" height="22" fill="#000"/>
+  <rect x="3" y="3" width="22" height="22" fill="#f5f0f8" stroke="#000" stroke-width="2"/>
+  <rect x="4" y="4" width="20" height="6" fill="#d4bbbf"/>
+  <path d="M4 6h20M4 8h20" stroke="#f5f0f8" stroke-width="0.8"/>
+  <path d="M4 10h20" stroke="#000" stroke-width="2"/>
+  <circle cx="25" cy="18" r="3.5" fill="#e05a6a" stroke="#000" stroke-width="1.5"/>
+</svg>

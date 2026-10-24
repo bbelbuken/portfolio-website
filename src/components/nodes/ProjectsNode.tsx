@@ -12,7 +12,7 @@ const PROJECTS = [
   {
     name: 'this-portfolio',
     desc: 'Node-graph portfolio',
-    url: 'https://github.com/bbelbuken',
+    url: 'https://github.com/bbelbuken/portfolio-website',
     tags: ['React', 'TypeScript', 'Vite'],
   },
 ]

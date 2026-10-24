@@ -10,6 +10,7 @@ const EMAIL = 'bbelbuken@gmail.com';
 const LINKS = [
     { label: 'email', href: `mailto:${EMAIL}`, value: EMAIL },
     { label: 'github', href: 'https://github.com/bbelbuken', value: 'github.com/bbelbuken' },
+    { label: 'linkedin', href: 'https://www.linkedin.com/in/bbelbuken', value: 'linkedin.com/in/bbelbuken' },
     { label: 'location', href: 'https://maps.google.com/?q=Istanbul,Turkey', value: 'Istanbul, Turkey' },
 ];
 

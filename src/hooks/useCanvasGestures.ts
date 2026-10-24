@@ -128,6 +128,8 @@ export function useCanvasGestures(containerRef: React.RefObject<HTMLElement | nu
         liveX.current += dx
         liveY.current += dy
         applyTransform()
+        // Keep the background grid moving with the nodes while dragging
+        setTransform(liveX.current, liveY.current, liveScale.current)
       },
       onDragEnd: () => {
         setTransform(liveX.current, liveY.current, liveScale.current)
@@ -150,6 +152,7 @@ export function useCanvasGestures(containerRef: React.RefObject<HTMLElement | nu
         const clamped = Math.min(MAX_SCALE, Math.max(MIN_SCALE, scale))
         liveScale.current = clamped
         applyTransform()
+        setTransform(liveX.current, liveY.current, liveScale.current)
       },
       onPinchEnd: () => {
         setTransform(liveX.current, liveY.current, liveScale.current)

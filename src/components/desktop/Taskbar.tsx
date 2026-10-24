@@ -56,6 +56,18 @@ export function Taskbar() {
         setControlOpen(false);
     }
 
+    // Escape closes whichever header dropdown is open (contact.sh handles
+    // its own)
+    useEffect(() => {
+        function onKey(e: KeyboardEvent) {
+            if (e.key !== 'Escape') return;
+            setOpenMenu(null);
+            setControlOpen(false);
+        }
+        window.addEventListener('keydown', onKey);
+        return () => window.removeEventListener('keydown', onKey);
+    }, [setOpenMenu, setControlOpen]);
+
     return (
         <header
             className='fixed top-0 inset-x-0 z-40 flex items-center justify-between px-4'

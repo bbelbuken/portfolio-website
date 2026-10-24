@@ -3,7 +3,7 @@
     "category": "ads",
     "title": "Fedon Mayolara Düştü",
     "client": "Migros",
-    "year": "",
+    "year": "2024",
     "file": "Ads/migros-fedon-mayolara-dustu.mp4",
     "poster": "Ads/migros-fedon-mayolara-dustu.jpg"
   },
@@ -11,9 +11,17 @@
     "category": "ads",
     "title": "Deniz Market",
     "client": "Migros",
-    "year": "",
+    "year": "2024",
     "file": "Ads/migros-fedon-deniz-market.mp4",
     "poster": "Ads/migros-fedon-deniz-market.jpg"
+  },
+  {
+    "category": "ads",
+    "title": "14 Şubat'ı Soğukkanlılıkla Kutlayınız",
+    "client": "Turkcell",
+    "year": "2025",
+    "file": "Ads/14-subat-sogukkanlilikla.mp4",
+    "poster": "Ads/14-subat-sogukkanlilikla.jpg"
   },
   {
     "category": "fashion",
