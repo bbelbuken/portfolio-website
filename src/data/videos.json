@@ -17,7 +17,7 @@
   },
   {
     "category": "ads",
-    "title": "14 Şubat'ı Soğukkanlılıkla Kutlayınız",
+    "title": "14 Şubat Yusuf Dikeç",
     "client": "Turkcell",
     "year": "2025",
     "file": "Ads/14-subat-sogukkanlilikla.mp4",
@@ -33,11 +33,11 @@
   },
   {
     "category": "fashion",
-    "title": "VVG",
-    "client": "Van Veen",
+    "title": "Elle",
+    "client": "Elle",
     "year": "2024",
-    "file": "Fashion/vvg (van veen grab).mp4",
-    "poster": "Fashion/vvg (van veen grab).jpg"
+    "file": "Fashion/elle.mp4",
+    "poster": "Fashion/elle.jpg"
   },
   {
     "category": "fashion",
@@ -49,11 +49,11 @@
   },
   {
     "category": "fashion",
-    "title": "Elle",
-    "client": "Elle",
+    "title": "VVG",
+    "client": "Van Veen",
     "year": "2024",
-    "file": "Fashion/elle.mp4",
-    "poster": "Fashion/elle.jpg"
+    "file": "Fashion/vvg (van veen grab).mp4",
+    "poster": "Fashion/vvg (van veen grab).jpg"
   },
   {
     "category": "fashion",

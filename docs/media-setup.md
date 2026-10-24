@@ -49,42 +49,40 @@ bucket `portfolio-medya`. The site reads them from `VITE_MEDIA_BASE`.
 
 ## Where the site reads from
 
-`VITE_MEDIA_BASE` in `.env.local` (git-ignored):
+`VITE_MEDIA_BASE=https://media.bbelbuken.com`, the bucket's custom domain:
 
-- **Now (development):** the bucket's public development URL,
-  `https://pub-….r2.dev`. Cloudflare rate-limits it, so a few posters can
-  fail on a burst; the site retries them.
-- **After launch:** the bucket's custom domain, e.g.
-  `https://media.example.com`. Set it in the hosting provider's
-  environment variables too, then rebuild.
+- **Locally:** in `.env.local` (git-ignored). Restart `npm run dev` after
+  changing it.
+- **Live site:** in Cloudflare Pages → project → Settings → Environment
+  variables. Changing it there needs a redeploy.
 
-Restart `npm run dev` after changing `.env.local`.
+## Hosting
+
+- Domain `bbelbuken.com`, registered with Cloudflare Registrar (auto-renew
+  on), DNS on Cloudflare.
+- Site on Cloudflare Pages, built from `main` (`npm run build` → `dist`,
+  `NODE_VERSION=22`). Every push to `main` redeploys.
+- Videos on `media.bbelbuken.com` → R2 bucket `portfolio-medya`.
 
 ## Already done
 
-- Bucket created, files uploaded, development URL enabled.
-- Default storage class is Standard (Infrequent Access would charge per read).
+- Bucket created, files uploaded, default storage class Standard
+  (Infrequent Access would charge per read).
 - Budget alert at $1 under Manage account → Billing → Billable Usage.
+- Custom domain `media.bbelbuken.com` connected to the bucket.
 
-## After the domain is live
+## Still to do (protection)
 
-1. **Domain on Cloudflare.** Add the domain to the free plan and point the
-   registrar's nameservers to Cloudflare.
-2. **Custom domain.** Bucket → Settings → Custom Domains → connect
-   `media.example.com`. Switch `VITE_MEDIA_BASE` to it.
-3. **Turn off r2.dev.** Bucket → Settings → Public Development URL →
+1. **Turn off r2.dev.** Bucket → Settings → Public Development URL →
    disable, so the custom domain is the only way in.
-4. **Cache everything at the edge.** Caching → Cache Rules → create a rule
-   for hostname `media.example.com`: eligible for cache, edge TTL 1 month,
+2. **Cache everything at the edge.** Caching → Cache Rules → create a rule
+   for hostname `media.bbelbuken.com`: eligible for cache, edge TTL 1 month,
    cache key **ignores the query string**. Repeat views and cache-busting
    floods are then answered by Cloudflare's edge and never reach R2, so R2
    reads (the only billable operation) stay near one per file.
-5. **Rate limit.** Security → WAF → Rate limiting rules (one is free):
-   hostname `media.example.com`, e.g. 300 requests per 10 seconds per IP,
+3. **Rate limit.** Security → WAF → Rate limiting rules (one is free):
+   hostname `media.bbelbuken.com`, e.g. 300 requests per 10 seconds per IP,
    block for 10 seconds.
-
-Optional: host the site itself on Cloudflare Pages (free) under the same
-domain.
 
 ## Free-tier limits
 
