@@ -271,35 +271,39 @@ body,
  * Sideways the pad is generous and reaches further outside the window than
  * into it, and it divides out the canvas zoom (--canvas-scale, written by
  * useCanvasGestures) so the target stays finger-sized however far the
- * visitor has zoomed out. Vertically it stops halfway to the next port in
- * the stack, so a tap always lands on the closest connector, never its
- * neighbour.
+ * visitor has zoomed out. Vertically a stacked port reaches exactly halfway
+ * to its neighbour (12px gap between dots, 2px of which the dot's own border
+ * eats), so the stack is covered edge to edge: a tap always lands on the
+ * closest connector and never on the branch next to it.
  */
 @media (pointer: coarse) {
     [data-port] {
         position: relative;
-        --port-pad-out: calc(-26px / var(--canvas-scale, 1));
-        --port-pad-in: calc(-10px / var(--canvas-scale, 1));
+        --port-pad-out: calc(-38px / var(--canvas-scale, 1));
+        --port-pad-in: calc(-16px / var(--canvas-scale, 1));
+        --port-pad-tall: calc(-22px / var(--canvas-scale, 1));
     }
 
     [data-port-type='input']::after {
         content: '';
         position: absolute;
-        inset: -6px var(--port-pad-in) -6px var(--port-pad-out);
+        inset: -8px var(--port-pad-in) -8px var(--port-pad-out);
     }
 
     [data-port-type='output']::after {
         content: '';
         position: absolute;
-        inset: -6px var(--port-pad-out) -6px var(--port-pad-in);
+        inset: -8px var(--port-pad-out) -8px var(--port-pad-in);
     }
 
-    /* A lone port has no neighbour to steal from, so it gets the full pad */
+    /* A lone port has no neighbour to steal from, so it grows vertically too */
     :only-child > [data-port-type='input']::after {
-        inset: -14px var(--port-pad-in) -14px var(--port-pad-out);
+        inset: var(--port-pad-tall) var(--port-pad-in) var(--port-pad-tall)
+            var(--port-pad-out);
     }
 
     :only-child > [data-port-type='output']::after {
-        inset: -14px var(--port-pad-out) -14px var(--port-pad-in);
+        inset: var(--port-pad-tall) var(--port-pad-out) var(--port-pad-tall)
+            var(--port-pad-in);
     }
 }
