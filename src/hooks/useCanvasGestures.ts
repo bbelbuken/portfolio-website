@@ -33,6 +33,37 @@ export function useCanvasGestures(containerRef: React.RefObject<HTMLElement | nu
     contentRef.current.style.transform = `translate(${liveX.current}px, ${liveY.current}px) scale(${liveScale.current})`
   }, [])
 
+  /** Screen point (container-relative) of the pinch midpoint on the last frame */
+  const pinchOrigin = useRef<[number, number] | null>(null)
+
+  /** Client point -> coordinates relative to the canvas container's top-left */
+  const toContainer = useCallback(
+    (clientX: number, clientY: number): [number, number] => {
+      const rect = containerRef.current?.getBoundingClientRect()
+      return [clientX - (rect?.left ?? 0), clientY - (rect?.top ?? 0)]
+    },
+    [containerRef],
+  )
+
+  /**
+   * Scale around a screen point: the canvas coordinate sitting under
+   * (focusX, focusY) stays under it, so zooming tracks the cursor or the
+   * pinch midpoint instead of pulling everything toward the centre.
+   * With transform-origin 0 0, screen = translate + canvasPoint * scale.
+   */
+  const zoomAround = useCallback(
+    (nextScale: number, focusX: number, focusY: number) => {
+      const clamped = Math.min(MAX_SCALE, Math.max(MIN_SCALE, nextScale))
+      const ratio = clamped / liveScale.current
+      liveX.current = focusX - (focusX - liveX.current) * ratio
+      liveY.current = focusY - (focusY - liveY.current) * ratio
+      liveScale.current = clamped
+      applyTransform()
+      setTransform(liveX.current, liveY.current, liveScale.current)
+    },
+    [applyTransform, setTransform],
+  )
+
   const introFrame = useRef<number | null>(null)
   // Set by a real background pan, so taps and node drags don't count
   const panned = useRef(false)
@@ -140,21 +171,27 @@ export function useCanvasGestures(containerRef: React.RefObject<HTMLElement | nu
         event.preventDefault()
         stopIntro()
         const factor = dy > 0 ? 0.95 : 1.05
-        const next = Math.min(MAX_SCALE, Math.max(MIN_SCALE, liveScale.current * factor))
-        liveScale.current = next
-        applyTransform()
-        setTransform(liveX.current, liveY.current, liveScale.current)
+        // Zoom toward the pointer, not the middle of the screen
+        const [fx, fy] = toContainer(event.clientX, event.clientY)
+        zoomAround(liveScale.current * factor, fx, fy)
         useTutorialStore.getState().markNavigated()
       },
-      onPinch: ({ offset: [scale], event }) => {
+      onPinch: ({ offset: [scale], origin: [ox, oy], first, event }) => {
         event.preventDefault()
         stopIntro()
-        const clamped = Math.min(MAX_SCALE, Math.max(MIN_SCALE, scale))
-        liveScale.current = clamped
-        applyTransform()
-        setTransform(liveX.current, liveY.current, liveScale.current)
+        const [fx, fy] = toContainer(ox, oy)
+        if (first || !pinchOrigin.current) pinchOrigin.current = [fx, fy]
+
+        // Fingers moving together drag the canvas along with them
+        liveX.current += fx - pinchOrigin.current[0]
+        liveY.current += fy - pinchOrigin.current[1]
+        pinchOrigin.current = [fx, fy]
+
+        // ...and the spread scales around the point between the fingers
+        zoomAround(scale, fx, fy)
       },
       onPinchEnd: () => {
+        pinchOrigin.current = null
         setTransform(liveX.current, liveY.current, liveScale.current)
         useTutorialStore.getState().markNavigated()
       },
