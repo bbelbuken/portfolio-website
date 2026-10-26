@@ -31,6 +31,8 @@ export function useCanvasGestures(containerRef: React.RefObject<HTMLElement | nu
   const applyTransform = useCallback(() => {
     if (!contentRef.current) return
     contentRef.current.style.transform = `translate(${liveX.current}px, ${liveY.current}px) scale(${liveScale.current})`
+    // Touch hit pads read this to stay finger-sized at any zoom (see index.css)
+    contentRef.current.style.setProperty('--canvas-scale', String(liveScale.current))
   }, [])
 
   /** Screen point (container-relative) of the pinch midpoint on the last frame */
