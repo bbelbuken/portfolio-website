@@ -3,8 +3,10 @@ import { useGesture } from '@use-gesture/react'
 import { useCanvasStore } from '@/stores/canvasStore'
 import { useTutorialStore } from '@/hooks/useTutorial'
 
-const MIN_SCALE = 0.25
+const MIN_SCALE = 0.15
 const MAX_SCALE = 3
+/** Breathing room kept around the graph when it is zoomed out to fit */
+const FIT_PAD = 24
 
 /** Nodes the opening shot frames */
 const INTRO_NODES = ['about', 'code-branch', 'audio-branch']
@@ -15,8 +17,9 @@ const INTRO_FIT = 0.96
 const INTRO_PAD = 16
 const TUTORIAL_BAR_H = 64
 
-function easeInOutCubic(t: number) {
-  return t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2
+/** No ramp-up: the opening shot moves from the first frame, then settles. */
+function easeOutCubic(t: number) {
+  return 1 - (1 - t) ** 3
 }
 
 export function useCanvasGestures(containerRef: React.RefObject<HTMLElement | null>) {
@@ -31,7 +34,142 @@ export function useCanvasGestures(containerRef: React.RefObject<HTMLElement | nu
   const applyTransform = useCallback(() => {
     if (!contentRef.current) return
     contentRef.current.style.transform = `translate(${liveX.current}px, ${liveY.current}px) scale(${liveScale.current})`
+    // Touch hit pads read this to stay finger-sized at any zoom (see index.css)
+    contentRef.current.style.setProperty('--canvas-scale', String(liveScale.current))
   }, [])
+
+  /** Bounding box of every node on the canvas, in canvas units */
+  const boundsRef = useRef<{
+    box: { minX: number; minY: number; maxX: number; maxY: number }
+    at: number
+  } | null>(null)
+
+  /**
+   * Measure the graph. Nodes are absolutely positioned inside the content
+   * div, so their offset box is already in canvas coordinates. Cached for a
+   * few frames because panning would otherwise re-measure every node on
+   * every pointer move.
+   */
+  const contentBounds = useCallback(() => {
+    const content = contentRef.current
+    if (!content) return null
+    const now = performance.now()
+    const cached = boundsRef.current
+    if (cached && now - cached.at < 250) return cached.box
+
+    const els = content.querySelectorAll<HTMLElement>('[data-node]')
+    if (!els.length) return null
+    let minX = Infinity
+    let minY = Infinity
+    let maxX = -Infinity
+    let maxY = -Infinity
+    els.forEach((el) => {
+      minX = Math.min(minX, el.offsetLeft)
+      minY = Math.min(minY, el.offsetTop)
+      maxX = Math.max(maxX, el.offsetLeft + el.offsetWidth)
+      maxY = Math.max(maxY, el.offsetTop + el.offsetHeight)
+    })
+    const box = { minX, minY, maxX, maxY }
+    boundsRef.current = { box, at: now }
+    return box
+  }, [])
+
+  /**
+   * Lower zoom limit: the fixed floor, or whatever it takes to fit the whole
+   * graph on screen — whichever is smaller. However many nodes are open,
+   * zooming out always reaches a view that holds all of them.
+   */
+  const minScale = useCallback(() => {
+    const container = containerRef.current
+    const box = contentBounds()
+    if (!container || !box) return MIN_SCALE
+    const fit = Math.min(
+      (container.clientWidth - FIT_PAD * 2) / Math.max(1, box.maxX - box.minX),
+      (container.clientHeight - FIT_PAD * 2) / Math.max(1, box.maxY - box.minY),
+    )
+    return Math.min(MIN_SCALE, Math.max(0.05, fit))
+  }, [containerRef, contentBounds])
+
+  /**
+   * The pannable world: everything the zoomed-all-the-way-out view takes in,
+   * centred on the graph. That view is the canvas visitors see, so panning
+   * reaches the same edges at every zoom level — close in you can still
+   * scroll out to the margin around the nodes, never past it.
+   */
+  const worldBounds = useCallback(() => {
+    const container = containerRef.current
+    const box = contentBounds()
+    if (!container || !box) return null
+    const out = minScale()
+    const halfW = container.clientWidth / out / 2
+    const halfH = container.clientHeight / out / 2
+    const midX = (box.minX + box.maxX) / 2
+    const midY = (box.minY + box.maxY) / 2
+    return {
+      minX: Math.min(box.minX, midX - halfW),
+      maxX: Math.max(box.maxX, midX + halfW),
+      minY: Math.min(box.minY, midY - halfH),
+      maxY: Math.max(box.maxY, midY + halfH),
+    }
+  }, [containerRef, contentBounds, minScale])
+
+  /**
+   * Keep the view inside that world. While the world is smaller than the
+   * viewport it may move anywhere inside it but never past an edge; once it
+   * is larger, the viewport may move anywhere inside it. Either way nothing
+   * spills off the canvas and it can never be flung into empty space.
+   */
+  const clampPan = useCallback(() => {
+    const container = containerRef.current
+    const box = worldBounds()
+    if (!container || !box) return
+    const s = liveScale.current
+    const between = (a: number, b: number, value: number) =>
+      Math.min(Math.max(value, Math.min(a, b)), Math.max(a, b))
+
+    liveX.current = between(
+      -box.minX * s,
+      container.clientWidth - box.maxX * s,
+      liveX.current,
+    )
+    liveY.current = between(
+      -box.minY * s,
+      container.clientHeight - box.maxY * s,
+      liveY.current,
+    )
+  }, [containerRef, worldBounds])
+
+  /** Screen point (container-relative) of the pinch midpoint on the last frame */
+  const pinchOrigin = useRef<[number, number] | null>(null)
+
+  /** Client point -> coordinates relative to the canvas container's top-left */
+  const toContainer = useCallback(
+    (clientX: number, clientY: number): [number, number] => {
+      const rect = containerRef.current?.getBoundingClientRect()
+      return [clientX - (rect?.left ?? 0), clientY - (rect?.top ?? 0)]
+    },
+    [containerRef],
+  )
+
+  /**
+   * Scale around a screen point: the canvas coordinate sitting under
+   * (focusX, focusY) stays under it, so zooming tracks the cursor or the
+   * pinch midpoint instead of pulling everything toward the centre.
+   * With transform-origin 0 0, screen = translate + canvasPoint * scale.
+   */
+  const zoomAround = useCallback(
+    (nextScale: number, focusX: number, focusY: number) => {
+      const clamped = Math.min(MAX_SCALE, Math.max(minScale(), nextScale))
+      const ratio = clamped / liveScale.current
+      liveX.current = focusX - (focusX - liveX.current) * ratio
+      liveY.current = focusY - (focusY - liveY.current) * ratio
+      liveScale.current = clamped
+      clampPan()
+      applyTransform()
+      setTransform(liveX.current, liveY.current, liveScale.current)
+    },
+    [applyTransform, clampPan, minScale, setTransform],
+  )
 
   const introFrame = useRef<number | null>(null)
   // Set by a real background pan, so taps and node drags don't count
@@ -107,7 +245,7 @@ export function useCanvasGestures(containerRef: React.RefObject<HTMLElement | nu
     function tick(now: number) {
       const t = Math.min(1, (now - start) / INTRO_MS)
       // Scale on a log curve so the dive feels even all the way in
-      frameAt(from * (scale / from) ** easeInOutCubic(t))
+      frameAt(from * (scale / from) ** easeOutCubic(t))
       introFrame.current = t < 1 ? requestAnimationFrame(tick) : null
     }
     frameAt(from)
@@ -127,6 +265,7 @@ export function useCanvasGestures(containerRef: React.RefObject<HTMLElement | nu
         if (dx || dy) panned.current = true
         liveX.current += dx
         liveY.current += dy
+        clampPan()
         applyTransform()
         // Keep the background grid moving with the nodes while dragging
         setTransform(liveX.current, liveY.current, liveScale.current)
@@ -140,21 +279,28 @@ export function useCanvasGestures(containerRef: React.RefObject<HTMLElement | nu
         event.preventDefault()
         stopIntro()
         const factor = dy > 0 ? 0.95 : 1.05
-        const next = Math.min(MAX_SCALE, Math.max(MIN_SCALE, liveScale.current * factor))
-        liveScale.current = next
-        applyTransform()
-        setTransform(liveX.current, liveY.current, liveScale.current)
+        // Zoom toward the pointer, not the middle of the screen
+        const [fx, fy] = toContainer(event.clientX, event.clientY)
+        zoomAround(liveScale.current * factor, fx, fy)
         useTutorialStore.getState().markNavigated()
       },
-      onPinch: ({ offset: [scale], event }) => {
+      onPinch: ({ offset: [scale], origin: [ox, oy], first, event }) => {
         event.preventDefault()
         stopIntro()
-        const clamped = Math.min(MAX_SCALE, Math.max(MIN_SCALE, scale))
-        liveScale.current = clamped
-        applyTransform()
-        setTransform(liveX.current, liveY.current, liveScale.current)
+        const [fx, fy] = toContainer(ox, oy)
+        if (first || !pinchOrigin.current) pinchOrigin.current = [fx, fy]
+
+        // Fingers moving together drag the canvas along with them
+        liveX.current += fx - pinchOrigin.current[0]
+        liveY.current += fy - pinchOrigin.current[1]
+        pinchOrigin.current = [fx, fy]
+        clampPan()
+
+        // ...and the spread scales around the point between the fingers
+        zoomAround(scale, fx, fy)
       },
       onPinchEnd: () => {
+        pinchOrigin.current = null
         setTransform(liveX.current, liveY.current, liveScale.current)
         useTutorialStore.getState().markNavigated()
       },

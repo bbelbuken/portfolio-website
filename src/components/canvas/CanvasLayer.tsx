@@ -6,8 +6,12 @@ import type { CSSProperties, ReactNode } from 'react';
  * paint anything outside its viewport even with overflow:visible — so each
  * layer spans a large box centred on the canvas origin instead, and shifts
  * its contents back so canvas coordinates still map 1:1.
+ *
+ * Kept to a box the graph can realistically fill: these layers sit inside
+ * the promoted #canvas-content layer, and a 40000px square of them was
+ * enough to exhaust a phone's compositor memory and reload the tab.
  */
-const OFFSET = 20000;
+const OFFSET = 6000;
 
 interface CanvasLayerProps {
     zIndex: number;
@@ -24,7 +28,6 @@ export function CanvasLayer({ zIndex, children, style }: CanvasLayerProps) {
                 top: -OFFSET,
                 width: OFFSET * 2,
                 height: OFFSET * 2,
-                willChange: 'transform',
                 zIndex,
                 ...style,
             }}

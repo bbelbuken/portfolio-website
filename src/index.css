@@ -262,3 +262,44 @@ body,
         transition: none;
     }
 }
+
+/*
+ * Touch devices: fingers are far wider than the 12px port dot, so visitors
+ * kept missing the connectors. Grow an invisible hit pad around each port —
+ * the dot itself stays exactly the same size.
+ *
+ * The pad reaches the same distance on both sides, so a port is just as
+ * easy to grab from inside the window as from the canvas outside it. It
+ * divides out the canvas zoom (--canvas-scale, written by useCanvasGestures)
+ * to stay finger-sized however far the visitor has zoomed out, but stops
+ * growing past 64px of canvas so it never blankets a neighbouring node.
+ * Vertically a stacked port reaches exactly halfway to its neighbour (12px
+ * gap between dots, 2px of which the dot's own border eats), so the stack is
+ * covered edge to edge: a tap always lands on the closest connector and
+ * never on the branch next to it.
+ */
+@media (pointer: coarse) {
+    [data-port] {
+        position: relative;
+        --port-pad-x: max(calc(-46px / var(--canvas-scale, 1)), -64px);
+        --port-pad-tall: max(calc(-26px / var(--canvas-scale, 1)), -40px);
+    }
+
+    [data-port]::after {
+        content: '';
+        position: absolute;
+        inset: -8px var(--port-pad-x);
+    }
+
+    /* A lone port has no neighbour to steal from, so it grows vertically too */
+    :only-child > [data-port]::after {
+        inset: var(--port-pad-tall) var(--port-pad-x);
+    }
+
+    /* A node's own buttons and links stay above the pads reaching into it */
+    [data-node] a,
+    [data-node] button {
+        position: relative;
+        z-index: 1;
+    }
+}
