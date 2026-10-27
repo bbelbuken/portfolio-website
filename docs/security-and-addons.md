@@ -372,13 +372,13 @@ siteye link verirse siteyi de sana bağlar.
 **1. Sekme ve arama sonucu başlığı** — `index.html`:
 
 ```html
-<title>Batuhan Belbüken — Software Developer &amp; Sound Engineer</title>
+<title>Batuhan Belbüken — Software Developer | AI &amp; Cloud</title>
 ```
 
 ve aynı dosyada:
 
 ```html
-<meta property="og:title" content="Batuhan Belbüken — Software Developer &amp; Sound Engineer" />
+<meta property="og:title" content="Batuhan Belbüken — Software Developer | AI &amp; Cloud" />
 ```
 
 **2. Kimlik kartı (JSON-LD)** — `index.html`'de `</head>` satırının hemen
