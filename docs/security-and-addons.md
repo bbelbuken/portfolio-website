@@ -6,13 +6,14 @@ bağımsız, istediğin yerde ara verebilirsin.
 - [x] 1. Hesaplarda 2FA
 - [x] 2. DNSSEC
 - [x] 3. Güvenlik başlıkları (`public/_headers`)
-- [ ] 4. HSTS
-- [ ] 5. Email Routing (`hi@bbelbuken.com`)
-- [ ] 6. Sahte mail koruması (SPF + DMARC)
-- [ ] 7. Web Analytics
-- [ ] 8. Paylaşım görseli (`og:image`)
+- [x] 4. HSTS
+- [x] 5. Email Routing'i geri almak (domain'de mail kullanılmıyor)
+- [x] 6. Sahte mail koruması (domain mail göndermiyor)
+- [x] 7. Web Analytics
+- [x] 8. Paylaşım görseli (`og:image`)
 - [ ] 9. www → kök domain yönlendirmesi
 - [ ] 10. `robots.txt` ve `sitemap.xml`
+- [ ] 11. "Batuhan Belbüken" aramasında Google'da üstte çıkmak
 
 > **Panel yolları:** "zone" dediğim yer, Cloudflare ana sayfasında
 > **bbelbuken.com**'a tıklayınca açılan domain paneli. Menü adları Cloudflare
@@ -137,91 +138,61 @@ hep Cloudflare üzerinden HTTPS kullanacağız, sorun değil.
 
 ---
 
-## 5. Email Routing (`hi@bbelbuken.com`)
+## 5. Email Routing'i geri almak
 
-`hi@bbelbuken.com`'a gelen mailler Gmail'ine düşer. Kutu açmana, ücret
-ödemene gerek yok.
+Domain'de mail adresi kullanmamaya karar verdik; iletişim adresi
+`bbelbuken@gmail.com` olarak kalıyor. Kurulumda yapılanları geri al:
 
-### 5a. Gelen mail
-1. zone → **Email** → **Email Routing** → **Get started** (ya da **Enable**).
-2. **Custom address:** `hi` (istersen `contact`, `batuhan` vb.)
-3. **Action:** Send to an email → **Destination:** `bbelbuken@gmail.com`
-4. Gmail'ine Cloudflare'den bir doğrulama maili gelir → içindeki linke tıkla.
-5. Cloudflare "gerekli DNS kayıtlarını ekleyelim mi" diye sorar →
-   **Add records and enable**. (MX ve SPF kayıtları otomatik eklenir.)
+**Cloudflare**
+1. Sol menü → **Compute** → **Email Service** → **Email Routing** →
+   `bbelbuken.com`.
+2. **Routing rules**: `hi@bbelbuken.com` satırındaki **⋯ → Delete**.
+3. Sağ üst **Destination addresses**: `bbelbuken@gmail.com` → **⋯ → Delete**.
+4. **Settings** sekmesi → **Disable Email Routing**. Cloudflare eklediği DNS
+   kayıtlarını silmeyi teklif ederse **onayla**.
+5. zone → **DNS → Records**'ta şu kayıtlar kaldıysa tek tek sil:
+   - 3 × **MX** (`route1/2/3.mx.cloudflare.net`)
+   - **TXT** `cf2024-1._domainkey` (DKIM)
+   - **TXT** `bbelbuken.com` → `v=spf1 include:_spf.mx.cloudflare.net ~all`
+     (6. adımda yerine yenisini koyacağız)
 
-✅ Test: Başka bir adresten `hi@bbelbuken.com`'a mail at; Gmail'e düşmeli.
-(İlk mail spam klasörüne düşebilir; "Spam değil" de.)
+**Gmail**
+6. ⚙️ **Tüm ayarları gör** → **Hesaplar ve İçe Aktarma** → **Postayı farklı
+   adresten gönder** → `hi@bbelbuken.com` satırında **sil**. Varsayılan
+   gönderen `bbelbuken@gmail.com` kalmalı.
+7. `hi@bbelbuken.com` için bir filtre/etiket oluşturduysan: **Filtreler ve
+   Engellenen Adresler** → ilgili filtreyi **sil**.
 
-### 5b. Bu adresten cevap vermek (isteğe bağlı)
-Cloudflare mail göndermez; göndermeyi Gmail yapar.
+**Google hesabı**
+8. <https://myaccount.google.com/apppasswords> → `bbelbuken mail` uygulama
+   şifresini **sil** (çöp kutusu ikonu). Kullanılmayan uygulama şifresi
+   bırakmamak gerekiyor.
 
-1. Google hesabında 2 adımlı doğrulama açık olmalı (1. adımın Google
-   versiyonu): <https://myaccount.google.com/security>.
-2. <https://myaccount.google.com/apppasswords> → ad olarak
-   `bbelbuken mail` yaz → **Create** → çıkan **16 haneli şifreyi** kopyala.
-3. Gmail → ⚙️ **Tüm ayarları gör** → **Hesaplar ve İçe Aktarma** →
-   **Postayı farklı adresten gönder** → **Başka bir e-posta adresi ekle**.
-4. Ad: `Batuhan Belbüken`, adres: `hi@bbelbuken.com`,
-   "Takma ad olarak kabul et" işaretli kalsın → **Sonraki adım**.
-5. SMTP ayarları:
-   - SMTP sunucusu: `smtp.gmail.com`
-   - Bağlantı noktası: `587`
-   - Kullanıcı adı: `bbelbuken@gmail.com`
-   - Şifre: 2. adımdaki 16 haneli uygulama şifresi
-   - **TLS kullanarak güvenli bağlantı** seçili
-6. **Hesap ekle** → `hi@bbelbuken.com`'a doğrulama kodu gelir (Email Routing
-   sayesinde Gmail'ine düşer) → kodu gir.
-7. Artık Gmail'de yeni mail yazarken **Kimden** kısmında `hi@bbelbuken.com`
-   seçebilirsin.
-
-### 5c. Sitede göster
-`src/components/desktop/ContactTerminal.tsx` içinde en üstteki satırı değiştir:
-
-```ts
-const EMAIL = 'hi@bbelbuken.com';
-```
-
-Commit + push.
+✅ Bitti mi: Email Routing sayfası "disabled" diyor, DNS'te MX kaydı yok,
+Gmail'de sadece kendi adresin var.
 
 ---
 
-## 6. Sahte mail koruması (SPF + DMARC)
+## 6. Sahte mail koruması (domain mail göndermiyor)
 
-Başkasının `@bbelbuken.com` adına sahte mail göndermesini zorlaştırır.
-**5. adımdan sonra** yap; 5. adım SPF'nin bir kısmını zaten ekliyor.
+Domain'de mail yok ama biri yine de `kimse@bbelbuken.com` adına sahte mail
+göndermeye çalışabilir. Üç DNS kaydıyla "bu domain hiç mail göndermez,
+gelirse reddet" diyoruz. zone → **DNS → Records → Add record**:
 
-1. zone → **DNS** → **Records**.
-2. **SPF:** Türü `TXT`, adı `bbelbuken.com` (ya da `@`), değeri
-   `v=spf1 include:_spf.mx.cloudflare.net ...` ile başlayan kaydı bul →
-   **Edit**:
-   - 5b'yi yaptıysan (Gmail'den gönderiyorsan):
-     ```
-     v=spf1 include:_spf.mx.cloudflare.net include:_spf.google.com ~all
-     ```
-   - Bu adresten hiç mail göndermeyeceksen olduğu gibi bırak.
-3. **DMARC:** **Add record**:
-   - Type: `TXT`
-   - Name: `_dmarc`
-   - Content:
-     ```
-     v=DMARC1; p=none; rua=mailto:bbelbuken@gmail.com
-     ```
-   - **Save**.
+| Type | Name | İçerik | Ne yapar |
+|---|---|---|---|
+| `TXT` | `@` | `v=spf1 -all` | Hiçbir sunucu bu domain adına gönderemez |
+| `TXT` | `_dmarc` | `v=DMARC1; p=reject;` | SPF'yi geçemeyen mail reddedilsin |
+| `MX` | `@` | Mail server: `.` (tek nokta), Priority: `0` | "Null MX": bu domain mail **almaz** |
 
-`p=none` şimdilik sadece "izle ve raporla" der; Gmail'den gönderdiğin
-cevapların yanlışlıkla reddedilmesini önler. Gmail'in "farklı adresten
-gönder" özelliği maili `gmail.com` imzasıyla yolladığı için daha sıkı
-(`p=quarantine`/`p=reject`) bir ayar senin cevaplarını spama düşürebilir.
+Null MX'i eklerken Cloudflare noktayı kabul etmezse bu kaydı atla; ilk iki
+kayıt asıl korumayı sağlıyor.
 
-- Hiç göndermeyeceksen daha güçlü korumayı seçebilirsin:
-  `v=DMARC1; p=reject; rua=mailto:bbelbuken@gmail.com`
-
-Alternatif: zone → **Email** → **DMARC Management** sayfası bu kaydı adım
-adım kurdurur ve gelen raporları özetler.
+İleride domain'de mail kullanmaya karar verirsen bu üç kaydı silip mail
+servisinin istediği kayıtları eklemen yeterli.
 
 ✅ Bitti mi: <https://mxtoolbox.com/SuperTool.aspx> → `bbelbuken.com` için
-**SPF Record Lookup** ve **DMARC Lookup** yeşil.
+**SPF Record Lookup** `-all`, **DMARC Lookup** `p=reject` gösteriyor.
 
 ---
 
@@ -345,12 +316,134 @@ Arama motorlarına "siteyi tarayabilirsin, sayfalar bunlar" der.
 
 ---
 
+## 11. "Batuhan Belbüken" aramasında Google'da üstte çıkmak
+
+Adın benzersiz olduğu için rekabet yok; Google'ın siteyi bulması ve
+"Batuhan Belbüken'in resmi sitesi" olduğunu anlaması yeterli.
+
+| Adım | Ne sağlar | Gerekli mi |
+|---|---|---|
+| 11a. Search Console | Google siteyi bulur ve indeksler | **Evet** |
+| 11b. Profillerden link | Google siteyi LinkedIn/Instagram'daki sana bağlar; sıralamada en etkili adım | **Evet** |
+| 11c. Kod değişiklikleri | Sayfada adın ve profillerin net işaretlenir | Faydalı |
+
+**Ne zaman sonuç verir:** İndeksleme isteğinden sonra genelde birkaç gün ile
+2 hafta içinde aramada çıkar; en üste yerleşmesi profil linkleriyle birkaç
+hafta sürebilir.
+
+### 11a. Google Search Console
+**Önce 10. adımı yap** (sitemap gerekli).
+
+1. <https://search.google.com/search-console> → Google hesabınla gir →
+   **Add property**.
+2. **Domain** seçeneğini seç (URL prefix değil) → `bbelbuken.com` →
+   **Continue**.
+3. Google bir TXT kaydı verir (`google-site-verification=...`):
+   - Ekranda **"Verify with Cloudflare" / "Start verification"** gibi bir seçenek
+     varsa ona bas; Cloudflare'e girip onay verince kaydı kendisi ekler.
+   - Yoksa: Cloudflare → zone → **DNS → Records → Add record** → Type `TXT`,
+     Name `@`, Content: Google'ın verdiği değer → **Save**. Search Console'a
+     dönüp **Verify**. (Doğrulama bazen birkaç dakika sürer.)
+4. Sol menü **URL Inspection** → üstteki kutuya `https://bbelbuken.com/` →
+   Enter → **Request indexing**.
+5. Sol menü **Sitemaps** → `sitemap.xml` yaz → **Submit**.
+
+✅ Bitti mi: Birkaç gün sonra Google'da `site:bbelbuken.com` araması siteyi
+gösteriyor. Search Console → **Performance** hangi aramalarda çıktığını
+gösterir.
+
+### 11b. Profillerinden siteye link ver
+Google seni şu an LinkedIn ve Instagram üzerinden tanıyor; bu profiller
+siteye link verirse siteyi de sana bağlar.
+
+- **LinkedIn:** Profil → **Contact info** (kalem ikonu) → **Website** →
+  URL `https://bbelbuken.com`, tür **Portfolio** → Kaydet. İstersen
+  **Featured / Öne çıkanlar** bölümüne de link olarak ekle.
+- **Instagram:** Profili düzenle → **Bağlantılar** → **Harici bağlantı ekle** →
+  `https://bbelbuken.com`.
+- **GitHub:** Profil → **Edit profile** → **Website** → `https://bbelbuken.com`.
+  `portfolio-website` reposunun sağındaki ⚙️ **About** kısmına da aynı adresi
+  yaz.
+- **Spotify for Artists / SoundCloud:** Sanatçı profilinde web sitesi alanı
+  varsa ekle.
+
+### 11c. Kod değişiklikleri
+
+**1. Sekme ve arama sonucu başlığı** — `index.html`:
+
+```html
+<title>Batuhan Belbüken — Software Developer &amp; Sound Engineer</title>
+```
+
+ve aynı dosyada:
+
+```html
+<meta property="og:title" content="Batuhan Belbüken — Software Developer &amp; Sound Engineer" />
+```
+
+**2. Kimlik kartı (JSON-LD)** — `index.html`'de `</head>` satırının hemen
+üstüne ekle. Sayfada görünmez; Google'a "bu site bu kişinin, şu profiller de
+onun" der. `sameAs` listesine Instagram ve Spotify adreslerini kendin yaz;
+olmayanı sil (son satırdan sonra virgül olmamalı).
+
+```html
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Batuhan Belbüken",
+    "alternateName": "Batuhan Belbuken",
+    "url": "https://bbelbuken.com/",
+    "jobTitle": "Software Developer",
+    "description": "Software developer and former sound engineer based in Istanbul.",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Istanbul",
+      "addressCountry": "TR"
+    },
+    "alumniOf": {
+      "@type": "CollegeOrUniversity",
+      "name": "Bahçeşehir University"
+    },
+    "sameAs": [
+      "https://www.linkedin.com/in/bbelbuken",
+      "https://github.com/bbelbuken",
+      "https://www.instagram.com/KULLANICI_ADIN/",
+      "https://open.spotify.com/artist/SANATCI_ID"
+    ]
+  }
+</script>
+```
+
+Bu bir veri bloğu, çalıştırılan bir script değil; 3. adımdaki güvenlik
+başlıkları onu engellemez.
+
+**3. Adını sayfanın ana başlığı yap** —
+`src/components/nodes/AboutNode.tsx` içinde:
+
+```tsx
+<p>
+    <span style={{ color: 'var(--accent)' }}>{'> '}</span>
+    <strong>Batuhan Belbüken</strong>
+</p>
+```
+
+bloğundaki `<p>` ve `</p>`'yi `<h1>` ve `</h1>` yap. Görünüş değişmez (Tailwind
+başlıkların yazı boyutunu sıfırlıyor); Google adını sayfanın ana başlığı olarak
+okur.
+
+✅ Bitti mi: <https://search.google.com/test/rich-results> → `https://bbelbuken.com`
+→ **Person** öğesi hatasız görünüyor.
+
+---
+
 ## Kod değişikliklerini tek seferde yapmak için
 
-3, 5c, 8 ve 10 adımları dosya değişikliği. Hepsini yapıp tek commit atabilirsin:
+3, 8, 10 ve 11c adımları dosya değişikliği. Hepsini yapıp tek commit
+atabilirsin:
 
 ```bash
-git add public/_headers public/robots.txt public/sitemap.xml public/og-image.png index.html src/components/desktop/ContactTerminal.tsx
+git add public/_headers public/robots.txt public/sitemap.xml public/og-image.png index.html src/components/nodes/AboutNode.tsx
 git commit -m "added-security-headers-and-seo"
 git push origin main
 ```
