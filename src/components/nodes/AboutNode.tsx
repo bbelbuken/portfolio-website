@@ -23,10 +23,10 @@ export function AboutNode({ node }: AboutNodeProps) {
                     fontFamily: '"Fira Code", Consolas, monospace',
                 }}
             >
-                <p>
+                <h1>
                     <span style={{ color: 'var(--accent)' }}>{'> '}</span>
                     <strong>Batuhan Belbüken</strong>
-                </p>
+                </h1>
                 <p style={{ color: 'var(--text-secondary)' }}>
                     I'm a{' '}
                     <span

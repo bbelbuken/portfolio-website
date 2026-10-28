@@ -11,9 +11,9 @@ bağımsız, istediğin yerde ara verebilirsin.
 - [x] 6. Sahte mail koruması (domain mail göndermiyor)
 - [x] 7. Web Analytics
 - [x] 8. Paylaşım görseli (`og:image`)
-- [ ] 9. www → kök domain yönlendirmesi
-- [ ] 10. `robots.txt` ve `sitemap.xml`
-- [ ] 11. "Batuhan Belbüken" aramasında Google'da üstte çıkmak
+- [x] 9. www → kök domain yönlendirmesi
+- [x] 10. `robots.txt` ve `sitemap.xml`
+- [ ] 11. "Batuhan Belbüken" aramasında Google'da üstte çıkmak (11c kod tarafı yapıldı; 11a ve 11b sende)
 
 > **Panel yolları:** "zone" dediğim yer, Cloudflare ana sayfasında
 > **bbelbuken.com**'a tıklayınca açılan domain paneli. Menü adları Cloudflare
@@ -367,7 +367,7 @@ siteye link verirse siteyi de sana bağlar.
 - **Spotify for Artists / SoundCloud:** Sanatçı profilinde web sitesi alanı
   varsa ekle.
 
-### 11c. Kod değişiklikleri
+### 11c. Kod değişiklikleri (yapıldı)
 
 **1. Sekme ve arama sonucu başlığı** — `index.html`:
 
