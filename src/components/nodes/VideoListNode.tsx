@@ -32,7 +32,6 @@ function Poster({ src }: { src: string }) {
       key={attempt}
       src={attempt ? `${src}${src.includes('?') ? '&' : '?'}retry=${attempt}` : src}
       alt=""
-      loading="lazy"
       draggable={false}
       onLoad={() => setLoaded(true)}
       onError={retry}
@@ -117,16 +116,28 @@ export function VideoListNode({ node, category }: VideoListNodeProps) {
                 {active ? (
                   <Player video={v} />
                 ) : (
-                  <button
+                  // The poster sits beside the button, not inside it: iOS Safari
+                  // does not stretch absolutely positioned children of a <button>
+                  // over the card, which left posters blank and ▶ at the top
+                  <>
+                  {poster && <Poster src={poster} />}
+                  <div
+                    role="button"
+                    tabIndex={0}
                     onClick={() => setPlaying(key)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault()
+                        setPlaying(key)
+                      }
+                    }}
                     onPointerDown={(e) => e.stopPropagation()}
-                    className="group absolute inset-0 w-full h-full"
-                    style={{ border: 'none', padding: 0, cursor: 'pointer', background: 'transparent' }}
+                    className="group absolute inset-0 flex items-center justify-center"
+                    style={{ cursor: 'pointer' }}
                     aria-label={`Play ${v.title}`}
                   >
-                    {poster && <Poster src={poster} />}
                     <span
-                      className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 px-2 py-0.5 text-[12px] transition-transform group-hover:scale-110"
+                      className="px-2 py-0.5 text-[12px] transition-transform group-hover:scale-110"
                       style={{
                         background: 'var(--window-bg)',
                         color: 'var(--accent)',
@@ -136,7 +147,8 @@ export function VideoListNode({ node, category }: VideoListNodeProps) {
                     >
                       ▶
                     </span>
-                  </button>
+                  </div>
+                  </>
                 )}
               </div>
             </div>
