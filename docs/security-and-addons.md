@@ -13,7 +13,7 @@ bağımsız, istediğin yerde ara verebilirsin.
 - [x] 8. Paylaşım görseli (`og:image`)
 - [x] 9. www → kök domain yönlendirmesi
 - [x] 10. `robots.txt` ve `sitemap.xml`
-- [ ] 11. "Batuhan Belbüken" aramasında Google'da üstte çıkmak (11c kod tarafı yapıldı; 11a ve 11b sende)
+- [ ] 11. "Batuhan Belbüken" aramasında Google'da üstte çıkmak (11a ve 11c yapıldı; 11b sende)
 
 > **Panel yolları:** "zone" dediğim yer, Cloudflare ana sayfasında
 > **bbelbuken.com**'a tıklayınca açılan domain paneli. Menü adları Cloudflare
@@ -331,7 +331,7 @@ Adın benzersiz olduğu için rekabet yok; Google'ın siteyi bulması ve
 2 hafta içinde aramada çıkar; en üste yerleşmesi profil linkleriyle birkaç
 hafta sürebilir.
 
-### 11a. Google Search Console
+### 11a. Google Search Console (yapıldı)
 **Önce 10. adımı yap** (sitemap gerekli).
 
 1. <https://search.google.com/search-console> → Google hesabınla gir →

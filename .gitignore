@@ -32,3 +32,5 @@ Thumbs.db
 
 # Git
 .git/
+# graphify knowledge graph (local only)
+graphify-out/
