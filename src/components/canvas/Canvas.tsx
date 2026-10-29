@@ -1,52 +1,57 @@
-import { useEffect, useRef } from 'react'
-import { useCanvasGestures } from '@/hooks/useCanvasGestures'
-import { CanvasGrid } from './CanvasGrid'
-import { WireOverlay } from './WireOverlay'
-import { TutorialOverlay } from './TutorialOverlay'
+import { useEffect, useRef } from 'react';
+import { useCanvasGestures } from '@/hooks/useCanvasGestures';
+import { useCanvasStore } from '@/stores/canvasStore';
+import { CanvasGrid } from './CanvasGrid';
+import { WireOverlay } from './WireOverlay';
+import { TutorialOverlay } from './TutorialOverlay';
 
 interface CanvasProps {
-  children: React.ReactNode
+    children: React.ReactNode;
 }
 
 export function Canvas({ children }: CanvasProps) {
-  const containerRef = useRef<HTMLDivElement>(null)
-  // useGesture with target option auto-binds and returns void; contentRef is the transformed div
-  const { contentRef, introToView } = useCanvasGestures(
-    containerRef as React.RefObject<HTMLElement | null>,
-  )
+    const containerRef = useRef<HTMLDivElement>(null);
+    // useGesture with target option auto-binds and returns void; contentRef is the transformed div
+    const { contentRef, introToView, focusNode } = useCanvasGestures(
+        containerRef as React.RefObject<HTMLElement | null>,
+    );
+    const registerFocus = useCanvasStore((s) => s.registerFocus);
 
-  // Swoop in on the starting nodes once the first paint has measured them
-  useEffect(() => {
-    const id = requestAnimationFrame(introToView)
-    return () => cancelAnimationFrame(id)
-  }, [introToView])
+    // Swoop in on the starting nodes once the first paint has measured them
+    useEffect(() => {
+        const id = requestAnimationFrame(introToView);
+        return () => cancelAnimationFrame(id);
+    }, [introToView]);
 
-  return (
-    <div
-      ref={containerRef}
-      className="relative w-full h-full overflow-hidden select-none touch-none"
-      style={{ background: 'var(--bg)', cursor: 'grab' }}
-    >
-      {/* Static background grid (stays fixed, pattern shifts with canvas) */}
-      <CanvasGrid />
+    // Let agent.sh, which lives outside the canvas, move the camera
+    useEffect(() => registerFocus(focusNode), [focusNode, registerFocus]);
 
-      {/* Canvas content -- all nodes live here, transformed as one unit */}
-      <div
-        id="canvas-content"
-        ref={contentRef}
-        className="absolute"
-        style={{
-          transformOrigin: '0 0',
-          willChange: 'transform',
-          width: 0,
-          height: 0,
-        }}
-      >
-        {/* Wire SVG lives inside content so its coords match node positions */}
-        <WireOverlay />
-        <TutorialOverlay />
-        {children}
-      </div>
-    </div>
-  )
+    return (
+        <div
+            ref={containerRef}
+            className='relative w-full h-full overflow-hidden select-none touch-none'
+            style={{ background: 'var(--bg)', cursor: 'grab' }}
+        >
+            {/* Static background grid (stays fixed, pattern shifts with canvas) */}
+            <CanvasGrid />
+
+            {/* Canvas content -- all nodes live here, transformed as one unit */}
+            <div
+                id='canvas-content'
+                ref={contentRef}
+                className='absolute'
+                style={{
+                    transformOrigin: '0 0',
+                    willChange: 'transform',
+                    width: 0,
+                    height: 0,
+                }}
+            >
+                {/* Wire SVG lives inside content so its coords match node positions */}
+                <WireOverlay />
+                <TutorialOverlay />
+                {children}
+            </div>
+        </div>
+    );
 }

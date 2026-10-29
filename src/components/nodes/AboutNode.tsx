@@ -1,11 +1,22 @@
 import type { NodeData } from '@/types';
 import { NodeWindow } from './NodeWindow';
 import { useUiStore } from '@/stores/uiStore';
+import { ABOUT, ABOUT_HIGHLIGHT, NAME } from '@/data/profile';
 
-const FUN_FACTS = [
-    'Fenerbahçe basketball, from youth teams to pro',
-    'One year on the Turkish national team',
-];
+/** Bolds the first occurrence of `word` inside a paragraph */
+function withHighlight(text: string, word: string) {
+    const at = text.indexOf(word);
+    if (at < 0) return text;
+    return (
+        <>
+            {text.slice(0, at)}
+            <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>
+                {word}
+            </span>
+            {text.slice(at + word.length)}
+        </>
+    );
+}
 
 interface AboutNodeProps {
     node: NodeData;
@@ -13,6 +24,7 @@ interface AboutNodeProps {
 
 export function AboutNode({ node }: AboutNodeProps) {
     const toggleContact = useUiStore((s) => s.toggleContact);
+    const toggleAgent = useUiStore((s) => s.toggleAgent);
 
     return (
         <NodeWindow node={node} width={340}>
@@ -25,58 +37,57 @@ export function AboutNode({ node }: AboutNodeProps) {
             >
                 <h1>
                     <span style={{ color: 'var(--accent)' }}>{'> '}</span>
-                    <strong>Batuhan Belbüken</strong>
+                    <strong>{NAME}</strong>
                 </h1>
-                <p style={{ color: 'var(--text-secondary)' }}>
-                    I'm a{' '}
-                    <span
-                        style={{
-                            color: 'var(--text-primary)',
-                            fontWeight: 600,
-                        }}
-                    >
-                        software developer
-                    </span>{' '}
-                    and former sound engineer based in Istanbul. I build
-                    multi-tenant SaaS, real-time IoT systems, serverless data
-                    pipelines on AWS and Azure, and agentic AI workflows with
-                    Claude Code and MCP.
-                </p>
-                <p style={{ color: 'var(--text-secondary)' }}>
-                    Before code, I spent 8 years designing sound for brands like
-                    GAP, Vogue, and Turkcell. Next stop: AI.
-                </p>
-                <p style={{ color: 'var(--text-secondary)' }}>
-                    Want to talk?{' '}
-                    <button
-                        onClick={toggleContact}
-                        onPointerDown={(e) => e.stopPropagation()}
-                        className='hover:underline'
-                        style={{
-                            color: 'var(--accent)',
-                            background: 'transparent',
-                            border: 'none',
-                            padding: 0,
-                            cursor: 'pointer',
-                            fontFamily: 'inherit',
-                        }}
-                    >
-                        $ ./contact.sh
-                    </button>
-                </p>
+                {ABOUT.map((text) => (
+                    <p key={text} style={{ color: 'var(--text-secondary)' }}>
+                        {withHighlight(text, ABOUT_HIGHLIGHT)}
+                    </p>
+                ))}
+                {/* The fun facts live in agent.sh's knowledge, not here */}
                 <div
-                    className='pt-2 text-[10px] space-y-1'
+                    className='pt-2 space-y-1'
                     style={{
                         borderTop: '1px solid var(--window-border)',
                         color: 'var(--text-secondary)',
                     }}
                 >
-                    {FUN_FACTS.map((fact) => (
-                        <p key={fact}>
-                            <span style={{ color: 'var(--accent)' }}>{'→'}</span>{' '}
-                            {fact}
-                        </p>
-                    ))}
+                    <p>
+                        Want to talk?{' '}
+                        <button
+                            onClick={toggleContact}
+                            onPointerDown={(e) => e.stopPropagation()}
+                            className='hover:underline'
+                            style={{
+                                color: 'var(--accent)',
+                                background: 'transparent',
+                                border: 'none',
+                                padding: 0,
+                                cursor: 'pointer',
+                                fontFamily: 'inherit',
+                            }}
+                        >
+                            $ ./contact.sh
+                        </button>
+                    </p>
+                    <p>
+                        Or ask my AI agent:{' '}
+                        <button
+                            onClick={toggleAgent}
+                            onPointerDown={(e) => e.stopPropagation()}
+                            className='hover:underline'
+                            style={{
+                                color: 'var(--accent)',
+                                background: 'transparent',
+                                border: 'none',
+                                padding: 0,
+                                cursor: 'pointer',
+                                fontFamily: 'inherit',
+                            }}
+                        >
+                            $ ./agent.sh
+                        </button>
+                    </p>
                 </div>
             </div>
         </NodeWindow>

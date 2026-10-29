@@ -34,3 +34,7 @@ Thumbs.db
 .git/
 # graphify knowledge graph (local only)
 graphify-out/
+
+# Wrangler local secrets / overrides
+.dev.vars*
+.wrangler/

@@ -10,6 +10,7 @@ import { useUiStore } from '@/stores/uiStore';
 const NAV_LINKS = [
     { label: 'about', href: '#about' },
     { label: 'contact', href: '#contact' },
+    { label: 'ask', href: '#ask' },
 ];
 
 function Clock() {
@@ -47,6 +48,7 @@ export function Taskbar() {
     const pulseNode = useGraphStore((s) => s.pulseNode);
     const bringToFront = useGraphStore((s) => s.bringToFront);
     const toggleContact = useUiStore((s) => s.toggleContact);
+    const toggleAgent = useUiStore((s) => s.toggleAgent);
     const setOpenMenu = useUiStore((s) => s.setOpenMenu);
     const setControlOpen = useThemeStore((s) => s.setControlOpen);
 
@@ -131,6 +133,19 @@ export function Taskbar() {
                         }}
                     >
                         {NAV_LINKS[1].label}
+                    </a>
+
+                    <a
+                        href='#ask'
+                        className={NAV_LINK_CLASS}
+                        style={{ color: 'var(--text-header)' }}
+                        onClick={(e) => {
+                            e.preventDefault();
+                            closeMenus();
+                            toggleAgent();
+                        }}
+                    >
+                        {NAV_LINKS[2].label}
                     </a>
                 </nav>
             </div>

@@ -214,11 +214,52 @@ body,
     animation: caret-blink 1s steps(1) infinite;
 }
 
+/* ─────────────────────────────────────────────
+   agent.sh launcher: until it is opened once it
+   hops every few seconds, squashing as it lands,
+   then sits still for good
+   ───────────────────────────────────────────── */
+@keyframes agent-bounce {
+    0%, 60%, 100% {
+        transform: translateY(0) scale(1, 1);
+    }
+    66% {
+        transform: translateY(-16px) scale(0.96, 1.05);
+    }
+    73% {
+        transform: translateY(0) scale(1.08, 0.9);
+    }
+    79% {
+        transform: translateY(-6px) scale(0.98, 1.02);
+    }
+    85% {
+        transform: translateY(0) scale(1.03, 0.97);
+    }
+    90% {
+        transform: translateY(0) scale(1, 1);
+    }
+}
+
+.agent-bounce {
+    animation: agent-bounce 2.6s ease-in-out infinite;
+    transform-origin: bottom center;
+}
+
+/* Scanlines over the launcher's screen */
+.agent-screen {
+    background-image: repeating-linear-gradient(
+        0deg,
+        transparent 0 2px,
+        rgba(0, 0, 0, 0.08) 2px 3px
+    );
+}
+
 @media (prefers-reduced-motion: reduce) {
     .hint-blink,
     .segment-pulse,
     .wheel-roll,
-    .caret-blink {
+    .caret-blink,
+    .agent-bounce {
         animation: none;
     }
 }

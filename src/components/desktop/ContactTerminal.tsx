@@ -4,18 +4,8 @@ import { useDrag } from '@use-gesture/react';
 import { RetroWindow } from '@/components/ui/RetroWindow';
 import { POP_IN } from '@/lib/motion';
 import { useUiStore } from '@/stores/uiStore';
+import { EMAIL, LINKS } from '@/data/profile';
 
-const EMAIL = 'bbelbuken@gmail.com';
-
-const LINKS = [
-    { label: 'email', href: `mailto:${EMAIL}`, value: EMAIL },
-    { label: 'github', href: 'https://github.com/bbelbuken', value: 'github.com/bbelbuken' },
-    { label: 'linkedin', href: 'https://www.linkedin.com/in/bbelbuken', value: 'linkedin.com/in/bbelbuken' },
-    { label: 'location', href: 'https://maps.google.com/?q=Istanbul,Turkey', value: 'Istanbul, Turkey' },
-];
-
-const COMMAND = '$ ./contact.sh';
-const TYPE_MS = 45; // per character of the command
 const LINE_MS = 160; // between printed lines
 const WIDTH = 320;
 const TOP = 34; // just under the header, like control.md
@@ -29,25 +19,21 @@ function prefersReducedMotion() {
 }
 
 /**
- * The terminal body: types the command, then prints one link per line.
+ * The terminal body: prints one link per line (the title bar already names
+ * the command).
  * Mounted fresh on every open, so the little run replays each time.
  */
 function TerminalBody() {
     const instant = prefersReducedMotion();
-    const [typed, setTyped] = useState(instant ? COMMAND.length : 0);
     const [printed, setPrinted] = useState(instant ? LINKS.length : 0);
     const [copied, setCopied] = useState(false);
 
     useEffect(() => {
-        if (typed < COMMAND.length) {
-            const id = setTimeout(() => setTyped(typed + 1), TYPE_MS);
-            return () => clearTimeout(id);
-        }
         if (printed < LINKS.length) {
             const id = setTimeout(() => setPrinted(printed + 1), LINE_MS);
             return () => clearTimeout(id);
         }
-    }, [typed, printed]);
+    }, [printed]);
 
     async function copyEmail() {
         try {
@@ -59,22 +45,13 @@ function TerminalBody() {
         }
     }
 
-    const finished = printed === LINKS.length;
-
     return (
         <div className='p-3 space-y-1.5 text-[11px]'>
-            <p style={{ color: 'var(--text-primary)' }}>
-                {COMMAND.slice(0, typed)}
-                {typed < COMMAND.length && (
-                    <span className='caret-blink' style={{ color: 'var(--accent)' }}>
-                        _
-                    </span>
-                )}
-            </p>
-
             {LINKS.slice(0, printed).map((l) => (
                 <div key={l.label} className='flex items-center gap-2'>
-                    <span style={{ color: 'var(--text-secondary)', minWidth: 64 }}>
+                    <span
+                        style={{ color: 'var(--text-secondary)', minWidth: 64 }}
+                    >
                         {l.label}
                     </span>
                     <span style={{ color: 'var(--accent)' }}>{'→'}</span>
@@ -83,7 +60,10 @@ function TerminalBody() {
                         target='_blank'
                         rel='noopener noreferrer'
                         className='hover:underline truncate'
-                        style={{ color: 'var(--text-primary)', textDecoration: 'none' }}
+                        style={{
+                            color: 'var(--text-primary)',
+                            textDecoration: 'none',
+                        }}
                     >
                         {l.value}
                     </a>
@@ -93,8 +73,12 @@ function TerminalBody() {
                             className='ml-auto text-[10px] px-1'
                             style={{
                                 border: '1px solid var(--window-border)',
-                                background: copied ? 'var(--accent)' : 'transparent',
-                                color: copied ? 'var(--window-bg)' : 'var(--text-secondary)',
+                                background: copied
+                                    ? 'var(--accent)'
+                                    : 'transparent',
+                                color: copied
+                                    ? 'var(--window-bg)'
+                                    : 'var(--text-secondary)',
                                 cursor: 'pointer',
                                 fontFamily: 'inherit',
                             }}
@@ -105,14 +89,6 @@ function TerminalBody() {
                 </div>
             ))}
 
-            {finished && (
-                <p style={{ color: 'var(--text-primary)' }}>
-                    ${' '}
-                    <span className='caret-blink' style={{ color: 'var(--accent)' }}>
-                        _
-                    </span>
-                </p>
-            )}
         </div>
     );
 }
@@ -145,7 +121,10 @@ export function ContactTerminal() {
 
     const bind = useDrag(({ delta: [dx, dy] }) => {
         setPos((p) => ({
-            x: Math.min(window.innerWidth - 60, Math.max(-WIDTH + 60, p.x + dx)),
+            x: Math.min(
+                window.innerWidth - 60,
+                Math.max(-WIDTH + 60, p.x + dx),
+            ),
             y: Math.min(window.innerHeight - 40, Math.max(TOP, p.y + dy)),
         }));
     });
