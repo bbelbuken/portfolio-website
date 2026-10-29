@@ -1,24 +1,9 @@
 import { NODE_IDS, SYSTEM_PROMPT, TOOL_NAMES } from './prompt';
 import { BIRTH_YEAR } from './knowledge';
 import { MAX_MESSAGE, TO, isEmail, visitorEmail } from './email';
-
-interface Env {
-    ASSETS: Fetcher;
-    AI: Ai;
-    CHAT_LIMIT: RateLimit;
-    MESSAGE_LIMIT: RateLimit;
-    /** Email Routing; missing until it is set up on the zone */
-    SEND_EMAIL?: SendEmail;
-    /** Optional override (wrangler vars / .dev.vars), for trying other models */
-    MODEL?: string;
-}
-
-/**
- * ~1 s replies, stays on the profile, about 65 neurons a question (so ~150
- * questions a day on the free tier). llama-3.1-8b-instruct-fp8-fast is the
- * budget fallback: ~0.6 s and ~12 neurons, but it drops details more often.
- */
-const DEFAULT_MODEL = '@cf/meta/llama-4-scout-17b-16e-instruct';
+import { DEFAULT_MODEL, textOf, type Env } from './shared';
+import { conversationId, logTurn } from './history';
+import { runCron } from './digest';
 
 const MAX_MESSAGES = 12;
 const MAX_CHARS = 500;
@@ -117,16 +102,6 @@ function parse(raw: string): { reply: string; actions: AgentAction[] } {
     return { reply, actions: actions.slice(0, 2) };
 }
 
-/** Workers AI returns { response } or, on newer models, OpenAI-style choices */
-function textOf(result: unknown): string {
-    const r = (result ?? {}) as {
-        response?: unknown;
-        choices?: { message?: { content?: unknown } }[];
-    };
-    const text = r.choices?.[0]?.message?.content ?? r.response ?? '';
-    return typeof text === 'string' ? text : '';
-}
-
 // Turkish letters, or common Turkish words typed on an English keyboard
 // ("kac yasinda", "ne is yapiyor") — small models often miss those and
 // answer in English, so the Worker tells them
@@ -175,7 +150,11 @@ async function chat(env: Env, messages: ChatMessage[], turkish: boolean) {
     return parse(textOf(result));
 }
 
-async function handleChat(request: Request, env: Env) {
+async function handleChat(
+    request: Request,
+    env: Env,
+    ctx: ExecutionContext,
+) {
     if (request.method !== 'POST') return json({ error: 'method' }, 405);
 
     const origin = request.headers.get('Origin');
@@ -214,22 +193,47 @@ async function handleChat(request: Request, env: Env) {
             400,
         );
 
+    const turkish = isTurkish(messages);
+    const last = messages[messages.length - 1]?.content ?? '';
+    // Written after the response goes out, so it never slows the reply
+    const record = (
+        reply: string,
+        actions: AgentAction[],
+        status: 'ok' | 'error',
+    ) =>
+        ctx.waitUntil(
+            logTurn(env, {
+                conversation: conversationId(
+                    (parsed as { conversation?: unknown })?.conversation,
+                ),
+                kind: 'chat',
+                question: last,
+                reply,
+                actions,
+                status,
+                country: countryOf(request),
+                lang: turkish ? 'tr' : 'en',
+            }),
+        );
+
     try {
-        const turkish = isTurkish(messages);
-        const { reply, actions: asked } = await chat(env, messages, turkish);
+        const { reply: text, actions: asked } = await chat(
+            env,
+            messages,
+            turkish,
+        );
         // "ok" or "thanks" never opens anything, whatever the model adds
-        const last = messages[messages.length - 1]?.content ?? '';
         const actions = SMALL_TALK.test(last.trim()) ? [] : asked;
-        return json({
-            reply:
-                reply ||
-                (turkish
-                    ? 'Emin olamadım, başka türlü sorar mısın?'
-                    : "I'm not sure — try asking another way."),
-            actions,
-        });
+        const reply =
+            text ||
+            (turkish
+                ? 'Emin olamadım, başka türlü sorar mısın?'
+                : "I'm not sure — try asking another way.");
+        record(reply, actions, 'ok');
+        return json({ reply, actions });
     } catch (err) {
         console.error('agent error', err);
+        record('', [], 'error');
         // Out of the free daily quota, or the model is briefly unavailable
         return json(
             {
@@ -246,7 +250,11 @@ async function handleChat(request: Request, env: Env) {
  * The leave_message form: the visitor's own words, typed into a form and
  * sent by them, mailed to Batuhan. The model never writes or sends these.
  */
-async function handleMessage(request: Request, env: Env) {
+async function handleMessage(
+    request: Request,
+    env: Env,
+    ctx: ExecutionContext,
+) {
     if (request.method !== 'POST') return json({ error: 'method' }, 405);
 
     const origin = request.headers.get('Origin');
@@ -307,6 +315,14 @@ async function handleMessage(request: Request, env: Env) {
         );
     try {
         await env.SEND_EMAIL.send(visitorEmail(email, message, chat));
+        // Only that it was sent: the message itself is in his inbox
+        ctx.waitUntil(
+            logTurn(env, {
+                conversation: conversationId(parsed.conversation),
+                kind: 'message_sent',
+                country: countryOf(request),
+            }),
+        );
         return json({ ok: true });
     } catch (err) {
         console.error('send error', err);
@@ -317,12 +333,21 @@ async function handleMessage(request: Request, env: Env) {
     }
 }
 
+/** Cloudflare's two-letter country code; never the IP itself */
+function countryOf(request: Request) {
+    const country = (request.cf as { country?: unknown } | undefined)?.country;
+    return typeof country === 'string' ? country : null;
+}
+
 export default {
-    async fetch(request, env) {
+    async fetch(request, env, ctx) {
         const url = new URL(request.url);
-        if (url.pathname === '/api/chat') return handleChat(request, env);
+        if (url.pathname === '/api/chat') return handleChat(request, env, ctx);
         if (url.pathname === '/api/message')
-            return handleMessage(request, env);
+            return handleMessage(request, env, ctx);
         return env.ASSETS.fetch(request);
+    },
+    async scheduled(controller, env) {
+        await runCron(controller.cron, env);
     },
 } satisfies ExportedHandler<Env>;

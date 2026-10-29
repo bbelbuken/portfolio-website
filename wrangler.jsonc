@@ -28,5 +28,16 @@
     "send_email": [
         { "name": "SEND_EMAIL", "destination_address": "bbelbuken@gmail.com" },
     ],
+    // agent.sh chat history (no IPs, 90 days), read through the weekly digest
+    "d1_databases": [
+        {
+            "binding": "DB",
+            "database_name": "agent-chats",
+            "database_id": "3546867a-b542-4bc2-9b2a-7ea3a781bd9e",
+        },
+    ],
+    // Daily 01:00 UTC: drop chats older than 90 days.
+    // Monday 00:05 UTC: weekly digest, right after the AI quota resets
+    "triggers": { "crons": ["0 1 * * *", "5 0 * * 1"] },
     "observability": { "enabled": true },
 }

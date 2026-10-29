@@ -99,7 +99,7 @@ prompt injection, salary, off-topic code request, Turkish questions.
 | Quota draining / spam | Rate limit binding: 10 requests per minute per IP. Origin check for browsers |
 | Bill surprise | Workers Free plan: past 10k neurons/day, Workers AI just errors, and the agent shows "resting for today, use contact.sh". No card is charged |
 | Hallucinated facts | Answers are limited to the profile. Otherwise it says it doesn't know and offers `open_contact` |
-| Privacy | Nothing is stored. The conversation lives in the browser tab's memory only. The agent says plainly that it can't send emails or pass messages on, and never keeps a visitor's address |
+| Privacy | Questions and answers go to D1 for 90 days, without IPs or browser details, and emails and phone numbers are masked first. The browser stores nothing (no cookie); the chat says so under its intro. The agent says plainly that it can't send emails itself |
 | Wrong language | Small models answer Turkish typed without Turkish letters ("kac yasinda") in English. The Worker spots Turkish with a word list and pins the reply language per request; a bare "ok" keeps the earlier language |
 | Wrong date math | A Worker's clock reads 1970 outside a request, and the model miscounts ages. The Worker computes his age per request from the birth year and hands the model the number |
 | Noisy actions | "ok" / "thanks" / "tamam" never open a window: the Worker drops actions on small talk, whatever the model adds |
@@ -115,7 +115,7 @@ prompt injection, salary, off-topic code request, Turkish questions.
 
 ## Changing the model
 
-Set `DEFAULT_MODEL` in `worker/index.ts`. To try one without editing code,
+Set `DEFAULT_MODEL` in `worker/shared.ts`. To try one without editing code,
 put `MODEL=@cf/...` in `.dev.vars` (gitignored) and restart
 `wrangler dev`. Avoid reasoning models: their thinking eats the token budget.
 
@@ -135,12 +135,39 @@ When a visitor wants Batuhan to get back to them, the model adds `ACTION: leave_
 
 One-time setup in the Cloudflare dashboard: bbelbuken.com → Email → Email Routing → enable it (it replaces the "no mail" MX/SPF records), then verify bbelbuken@gmail.com under Destination addresses. Without it the form says it couldn't send and shows his email.
 
+## Chat history and weekly digest
+
+Every question is one row in the D1 database `agent-chats` (table `turns`, see `migrations/0001_init.sql`): time, a random per-tab conversation id, question, reply, windows opened, status, country code and language. A message sent through the form adds a `message_sent` row, without the message (that is in his inbox). The write runs after the response, through `ctx.waitUntil`, so it never slows a reply, and a failed write never breaks the chat.
+
+Privacy: no IP or user agent is stored, emails and phone numbers in the text become `[email]` / `[phone]`, and the conversation id lives only in the page's memory, so no cookie or consent banner is needed. A line under the chat's intro tells visitors.
+
+Two crons in `wrangler.jsonc`:
+
+| Cron | Does |
+|---|---|
+| `0 1 * * *` (daily) | Deletes rows older than 90 days |
+| `5 0 * * 1` (Monday 00:05 UTC) | Emails Batuhan the week: chats, questions, messages sent, errors, countries, languages, windows opened, the questions it couldn't answer, and an AI review |
+
+The AI review is one Workers AI call a week over at most the last 150 questions and answers, about 150–300 neurons. It runs five minutes after the daily quota resets, when nobody is chatting, so it barely touches the visitors' share. It names what visitors ask most, which answers were weak, and what to add to the profile or prompt: the feedback loop for improving the agent.
+
+Ad-hoc queries:
+
+```bash
+npx wrangler d1 execute agent-chats --remote --command "SELECT datetime(created_at/1000,'unixepoch') AS at, question, reply FROM turns ORDER BY created_at DESC LIMIT 20"
+```
+
+Schema changes go in a new file under `migrations/`, applied with `npx wrangler d1 migrations apply agent-chats --remote` (Workers Builds doesn't run them).
+
 ## Files
 
 - `worker/index.ts`: request handling, limits, model call, action parsing and whitelist
 - `worker/prompt.ts`: system prompt and action list built from the site data
-- `worker/email.ts`: builds the visitor email (MIME, base64 UTF-8)
+- `worker/shared.ts`: bindings, model id, response parsing shared with the crons
+- `worker/history.ts`: writes chat rows to D1, masks emails and phone numbers
+- `worker/digest.ts`: the daily cleanup and the weekly digest with its AI review
+- `worker/email.ts`: builds the emails (MIME, base64 UTF-8)
 - `worker/knowledge.ts`: agent-only background (skills by place, LinkedIn/CV details)
-- `wrangler.jsonc`: Worker, static assets, AI, rate-limit and send_email bindings
+- `migrations/`: the D1 schema
+- `wrangler.jsonc`: Worker, static assets, AI, rate-limit, send_email and D1 bindings, crons
 - `src/components/desktop/AgentTerminal.tsx`: the chat window, runs actions
 - `src/hooks/useCanvasGestures.ts`: `focusNode`, the camera glide

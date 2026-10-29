@@ -1,9 +1,9 @@
 import { EmailMessage } from 'cloudflare:email';
 
 /**
- * Visitor messages from agent.sh, delivered through Cloudflare Email
- * Routing. The binding can only send to Batuhan's verified address, so the
- * form can never be used to mail anyone else.
+ * Mail from agent.sh (visitor messages and the weekly digest), delivered
+ * through Cloudflare Email Routing. The binding can only send to Batuhan's
+ * verified address, so nothing here can mail anyone else.
  */
 const FROM = 'agent@bbelbuken.com';
 export const TO = 'bbelbuken@gmail.com';
@@ -31,6 +31,25 @@ interface Turn {
     content: string;
 }
 
+/** A plain-text email to Batuhan; replyTo must already be a checked address */
+export function buildEmail(subject: string, text: string, replyTo?: string) {
+    const raw = [
+        `From: agent.sh <${FROM}>`,
+        `To: ${TO}`,
+        ...(replyTo ? [`Reply-To: ${replyTo}`] : []),
+        `Subject: =?UTF-8?B?${base64(subject).replace(/\r\n/g, '')}?=`,
+        `Date: ${new Date().toUTCString()}`,
+        `Message-ID: <${crypto.randomUUID()}@bbelbuken.com>`,
+        'MIME-Version: 1.0',
+        'Content-Type: text/plain; charset=UTF-8',
+        'Content-Transfer-Encoding: base64',
+        '',
+        base64(text),
+    ].join('\r\n');
+
+    return new EmailMessage(FROM, TO, raw);
+}
+
 export function visitorEmail(from: string, message: string, chat: Turn[]) {
     const lines = [
         'New message from agent.sh on bbelbuken.com.',
@@ -43,20 +62,5 @@ export function visitorEmail(from: string, message: string, chat: Turn[]) {
         for (const t of chat)
             lines.push(t.role === 'user' ? `> ${t.content}` : t.content);
     }
-
-    const raw = [
-        `From: agent.sh <${FROM}>`,
-        `To: ${TO}`,
-        `Reply-To: ${from}`,
-        `Subject: =?UTF-8?B?${base64(`agent.sh: message from ${from}`).replace(/\r\n/g, '')}?=`,
-        `Date: ${new Date().toUTCString()}`,
-        `Message-ID: <${crypto.randomUUID()}@bbelbuken.com>`,
-        'MIME-Version: 1.0',
-        'Content-Type: text/plain; charset=UTF-8',
-        'Content-Transfer-Encoding: base64',
-        '',
-        base64(lines.join('\n')),
-    ].join('\r\n');
-
-    return new EmailMessage(FROM, TO, raw);
+    return buildEmail(`agent.sh: message from ${from}`, lines.join('\n'), from);
 }

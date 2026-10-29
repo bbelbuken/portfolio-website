@@ -18,6 +18,14 @@ const MAX_MESSAGE = 1000; // the Worker's cap for leave_message
 const EMAIL_IN_TEXT = /[^\s@<>"',;:()]+@[^\s@<>"',;:()]+\.[a-z]{2,}/i;
 const TYPE_MS = 12; // per character of a reply
 
+// Groups this tab's questions in the chat history. Held in memory only, so
+// it lasts while the page is open and a reload starts a new one; nothing is
+// written to the browser
+const CONVERSATION =
+    typeof crypto !== 'undefined' && 'randomUUID' in crypto
+        ? crypto.randomUUID()
+        : null;
+
 // Turkish browsers get the intro in Turkish; replies follow the visitor's
 // own language either way
 const TURKISH =
@@ -27,6 +35,8 @@ const TURKISH =
 const COPY = TURKISH
     ? {
           intro: 'Batuhan hakkında ne istersen sor. Kanvastaki pencereleri senin için açabilirim.',
+          privacy:
+              "Sohbetler agent.sh'i geliştirmek için IP'n olmadan 90 gün saklanır.",
           suggestions: ['Batuhan kimdir?', 'AI yetkinlikleri neler?'],
           leaveMessage: 'Mesaj bırak',
           opened: 'açıldı',
@@ -44,6 +54,8 @@ const COPY = TURKISH
       }
     : {
           intro: 'Ask me anything about Batuhan. I can open the windows on the canvas for you.',
+          privacy:
+              'Chats are saved for 90 days, without your IP, to improve agent.sh.',
           suggestions: ['Who is Batuhan?', "What's his AI skill set?"],
           leaveMessage: 'Leave him a message',
           opened: 'opened',
@@ -199,6 +211,7 @@ function MessageForm({ lines, onDone }: MessageFormProps) {
                     email,
                     message,
                     website,
+                    conversation: CONVERSATION,
                     chat: lines
                         .filter(
                             (l) => l.role === 'user' || l.role === 'assistant',
@@ -342,6 +355,7 @@ function AgentBody({ height, lines, setLines }: AgentBodyProps) {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
+                    conversation: CONVERSATION,
                     messages: history
                         .filter(
                             (l) => l.role === 'user' || l.role === 'assistant',
@@ -395,6 +409,12 @@ function AgentBody({ height, lines, setLines }: AgentBodyProps) {
                 onWheel={(e) => e.stopPropagation()}
             >
                 <p style={{ color: 'var(--text-secondary)' }}>{COPY.intro}</p>
+                <p
+                    className='text-[10px]'
+                    style={{ color: 'var(--text-secondary)', opacity: 0.7 }}
+                >
+                    {COPY.privacy}
+                </p>
 
                 {lines.length === 0 && (
                     <div className='flex flex-wrap gap-1.5 pt-1'>
