@@ -59,14 +59,27 @@ function TerminalBody() {
                         href={l.href}
                         target='_blank'
                         rel='noopener noreferrer'
+                        // No inline text-decoration: it would beat hover:underline
                         className='hover:underline truncate'
-                        style={{
-                            color: 'var(--text-primary)',
-                            textDecoration: 'none',
-                        }}
+                        style={{ color: 'var(--text-primary)' }}
                     >
                         {l.value}
                     </a>
+                    {l.label === 'cv' && (
+                        <a
+                            href={l.href}
+                            download
+                            aria-label='Download CV'
+                            className='ml-auto shrink-0 whitespace-nowrap text-[10px] px-1 hover:underline'
+                            style={{
+                                border: '1px solid var(--window-border)',
+                                color: 'var(--text-secondary)',
+                                fontFamily: 'inherit',
+                            }}
+                        >
+                            ↓ download
+                        </a>
+                    )}
                     {l.value === EMAIL && (
                         <button
                             onClick={copyEmail}

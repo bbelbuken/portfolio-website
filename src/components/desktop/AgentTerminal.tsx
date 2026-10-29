@@ -8,6 +8,7 @@ import { useGraphStore } from '@/stores/graphStore';
 import { useCanvasStore } from '@/stores/canvasStore';
 import { readStored, writeStored } from '@/lib/storage';
 import { INITIAL_NODES } from '@/lib/graph';
+import { CV_FILE } from '@/data/profile';
 
 const WIDTH = 380;
 const HEIGHT = 440;
@@ -40,6 +41,7 @@ const COPY = TURKISH
           suggestions: ['Batuhan kimdir?', 'AI yetkinlikleri neler?'],
           leaveMessage: 'Mesaj bırak',
           opened: 'açıldı',
+          download: 'indirmek için tıkla',
           reopen: 'Tekrar göster:',
           placeholder: 'işleri hakkında sor…',
           form: {
@@ -59,6 +61,7 @@ const COPY = TURKISH
           suggestions: ['Who is Batuhan?', "What's his AI skill set?"],
           leaveMessage: 'Leave him a message',
           opened: 'opened',
+          download: 'click to download',
           reopen: 'Show again:',
           placeholder: 'ask about his work…',
           form: {
@@ -99,12 +102,60 @@ function windowName(a: Action) {
     return null; // leave_message shows its own form
 }
 
+const TAB_STYLE: React.CSSProperties = {
+    border: '1px solid var(--window-border)',
+    background: 'var(--title-bar-bg)',
+    color: 'var(--text-primary)',
+    cursor: 'pointer',
+    fontFamily: 'inherit',
+    lineHeight: '16px',
+    textDecoration: 'none',
+};
+
+/** The striped title bar every canvas window has */
+function TitleStripes() {
+    return (
+        <span
+            aria-hidden='true'
+            style={{
+                width: 9,
+                height: 7,
+                border: '1px solid var(--window-border)',
+                background:
+                    'repeating-linear-gradient(0deg, var(--window-bg) 0 1px, var(--title-bar-line) 1px 2px)',
+            }}
+        />
+    );
+}
+
 /**
  * What the agent opened, drawn as a tiny window title bar with the file's
  * name, so it reads as the window that just appeared. Clicking brings the
- * window back into view.
+ * window back into view. download_cv gets the same tab as a download link.
  */
 function OpenedTab({ action }: { action: Action }) {
+    const tabClass = 'gear-btn flex items-center gap-1 px-1.5 text-[10px]';
+
+    if (action.tool === 'download_cv')
+        return (
+            <p
+                className='flex items-center gap-1.5 py-0.5'
+                style={{ color: 'var(--text-secondary)' }}
+            >
+                <a
+                    href={`/${CV_FILE}`}
+                    download
+                    className={tabClass}
+                    style={TAB_STYLE}
+                >
+                    <TitleStripes />
+                    {CV_FILE}
+                </a>
+                <span style={{ color: 'var(--accent)' }}>↓</span>
+                {COPY.download}
+            </p>
+        );
+
     const name = windowName(action);
     if (!name) return null;
     return (
@@ -115,27 +166,10 @@ function OpenedTab({ action }: { action: Action }) {
             <button
                 onClick={() => runActions([action])}
                 title={`${COPY.reopen} ${name}`}
-                className='gear-btn flex items-center gap-1 px-1.5 text-[10px]'
-                style={{
-                    border: '1px solid var(--window-border)',
-                    background: 'var(--title-bar-bg)',
-                    color: 'var(--text-primary)',
-                    cursor: 'pointer',
-                    fontFamily: 'inherit',
-                    lineHeight: '16px',
-                }}
+                className={tabClass}
+                style={TAB_STYLE}
             >
-                {/* The striped title bar every canvas window has */}
-                <span
-                    aria-hidden='true'
-                    style={{
-                        width: 9,
-                        height: 7,
-                        border: '1px solid var(--window-border)',
-                        background:
-                            'repeating-linear-gradient(0deg, var(--window-bg) 0 1px, var(--title-bar-line) 1px 2px)',
-                    }}
-                />
+                <TitleStripes />
                 {name}
             </button>
             {COPY.opened}

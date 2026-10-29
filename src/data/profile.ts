@@ -8,6 +8,9 @@ export const NAME = 'Batuhan Belbüken';
 
 export const EMAIL = 'bbelbuken@gmail.com';
 
+/** Public copy of his CV in public/, without his phone number */
+export const CV_FILE = 'Batuhan_Belbuken_Resume.pdf';
+
 export const LINKS = [
     { label: 'email', href: `mailto:${EMAIL}`, value: EMAIL },
     {
@@ -20,6 +23,7 @@ export const LINKS = [
         href: 'https://www.linkedin.com/in/bbelbuken',
         value: 'linkedin.com/in/bbelbuken',
     },
+    { label: 'cv', href: `/${CV_FILE}`, value: 'resume.pdf' },
     {
         label: 'location',
         href: 'https://maps.google.com/?q=Istanbul,Turkey',
@@ -94,12 +98,6 @@ export const EXPERIENCE = [
 
 export const PROJECTS = [
     {
-        name: 'agent.sh',
-        desc: 'The AI agent in this site: answers questions about me from the same data the page shows, and drives the canvas with tool calls. Cloudflare Workers AI, no RAG needed at this size.',
-        url: 'https://github.com/bbelbuken/portfolio-website',
-        tags: ['LLM', 'Tool calling', 'Workers AI', 'TypeScript'],
-    },
-    {
         name: 'elontweetbot',
         desc: 'AI crypto trading bot: scores live X posts with Twitter-RoBERTa, fuses sentiment with a 70+ term crypto lexicon into a 0-100 signal, and trades on Binance Testnet with stop-loss, take-profit, and drawdown limits. Next.js dashboard with P&L charts, monitored with Prometheus, Grafana, and Loki, backed by 59 pytest tests.',
         url: 'https://github.com/bbelbuken/elontweetbot',
@@ -117,9 +115,16 @@ export const PROJECTS = [
     },
     {
         name: 'this-portfolio',
-        desc: 'Node-graph portfolio',
+        desc: 'This node-graph site, with agent.sh built in: an AI agent on Cloudflare Workers AI that answers questions about me from the same data the page shows and opens windows on the canvas through validated actions. Chats are logged to D1, and a weekly LLM review of them tells me what to improve.',
         url: 'https://github.com/bbelbuken/portfolio-website',
-        tags: ['React', 'TypeScript', 'Vite'],
+        tags: [
+            'React',
+            'TypeScript',
+            'Vite',
+            'Workers AI',
+            'LLM agents',
+            'Cloudflare D1',
+        ],
     },
 ];
 

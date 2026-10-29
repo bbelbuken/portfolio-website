@@ -79,7 +79,7 @@ function parse(raw: string): { reply: string; actions: AgentAction[] } {
         const key = `${tool}:${id}`;
         if (seen.has(key) || !TOOL_NAMES.includes(tool)) continue;
         seen.add(key);
-        if (tool === 'open_contact' || tool === 'leave_message')
+        if (tool !== 'open_node')
             actions.push({ tool });
         else if (NODE_IDS.includes(id)) actions.push({ tool, id });
     }

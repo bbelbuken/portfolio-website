@@ -135,6 +135,10 @@ When a visitor wants Batuhan to get back to them, the model adds `ACTION: leave_
 
 One-time setup in the Cloudflare dashboard: bbelbuken.com → Email → Email Routing → enable it (it replaces the "no mail" MX/SPF records), then verify bbelbuken@gmail.com under Destination addresses. Without it the form says it couldn't send and shows his email.
 
+## CV download
+
+`public/Batuhan_Belbuken_Resume.pdf` is a public copy of the CV with the phone number removed: the contact line was redacted out of the PDF (deleted from the text layer, not covered) and written back in the CV's own font. When a visitor asks for the CV, the model adds `ACTION: download_cv` and the chat shows a download tab; contact.sh lists it too. Replace the file when the CV changes, and keep the phone out.
+
 ## Chat history and weekly digest
 
 Every question is one row in the D1 database `agent-chats` (table `turns`, see `migrations/0001_init.sql`): time, a random per-tab conversation id, question, reply, windows opened, status, country code and language. A message sent through the form adds a `message_sent` row, without the message (that is in his inbox). The write runs after the response, through `ctx.waitUntil`, so it never slows a reply, and a failed write never breaks the chat.
