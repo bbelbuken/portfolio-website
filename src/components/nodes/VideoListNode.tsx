@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { NodeData } from '@/types'
 import { mediaUrl, videoPoster, videosOf, type Video, type VideoCategory } from '@/lib/media'
 import { NodeWindow } from './NodeWindow'
@@ -80,6 +80,12 @@ function Player({ video }: { video: Video }) {
  */
 export function VideoListNode({ node, category }: VideoListNodeProps) {
   const [playing, setPlaying] = useState<string | null>(null)
+
+  // Closing the window keeps this component mounted (it shows the socket),
+  // so forget the player; otherwise reopening would autoplay it again
+  useEffect(() => {
+    if (node.state === 'idle') setPlaying(null)
+  }, [node.state])
 
   if (node.state === 'idle') return <NodeSocket node={node} />
 

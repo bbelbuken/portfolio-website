@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { NodeData } from '@/types'
 import { releasesOf, spotifyEmbedUrl, type Release, type ReleaseKind } from '@/lib/media'
 import { NodeWindow } from './NodeWindow'
@@ -72,6 +72,12 @@ interface TracksNodeProps {
  */
 export function TracksNode({ node }: TracksNodeProps) {
   const [playing, setPlaying] = useState<string | null>(null)
+
+  // Closing the window keeps this component mounted (it shows the socket),
+  // so forget the player; otherwise reopening would autoplay it again
+  useEffect(() => {
+    if (node.state === 'idle') setPlaying(null)
+  }, [node.state])
 
   if (node.state === 'idle') return <NodeSocket node={node} />
 
