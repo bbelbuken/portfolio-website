@@ -115,6 +115,20 @@ const SMALL_TALK = new RegExp(
     'i',
 );
 
+// The message form only opens when the visitor asked to get in touch: a
+// troll question once got the form, and its "message" landed in his inbox
+const CONTACT_INTENT =
+    /contact|reach|e-?mail|\bmail|message|get back|hire|hiring|talk to|call|meet|work with|collaborat|interview|role|position|job|offer|ileti[sş]im|ula[sş]|mesaj|yaz|d[oö]n|g[oö]r[uü][sş]|i[sş] teklif|pozisyon|ara/i;
+
+/** Drops actions that don't fit what the visitor actually said */
+function allowedActions(question: string, actions: AgentAction[]) {
+    // "ok" or "thanks" never opens anything, whatever the model adds
+    if (SMALL_TALK.test(question.trim())) return [];
+    return actions.filter(
+        (a) => a.tool !== 'leave_message' || CONTACT_INTENT.test(question),
+    );
+}
+
 /** True when the visitor writes Turkish, so the reply language can be pinned */
 function isTurkish(messages: ChatMessage[]) {
     const asked = messages.filter((m) => m.role === 'user').map((m) => m.content);
@@ -222,8 +236,7 @@ async function handleChat(
             messages,
             turkish,
         );
-        // "ok" or "thanks" never opens anything, whatever the model adds
-        const actions = SMALL_TALK.test(last.trim()) ? [] : asked;
+        const actions = allowedActions(last, asked);
         const reply =
             text ||
             (turkish
